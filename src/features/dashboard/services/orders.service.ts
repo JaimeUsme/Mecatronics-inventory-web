@@ -1,4 +1,4 @@
-import type { OrdersApiResponse, GetOrdersParams, GetMyOrdersParams, OrderImage, OrderFeedback, CreateFeedbackRequest, GetOrderImagesResponse, GetOrderFeedbacksResponse } from '../types'
+import type { OrdersApiResponse, GetOrdersParams, GetMyOrdersParams, CreateFeedbackRequest, GetOrderImagesResponse, GetOrderFeedbacksResponse } from '../types'
 import { getAuthHeaders } from '@/shared/utils/api'
 import { checkAuthError } from '@/shared/utils/checkAuthError'
 

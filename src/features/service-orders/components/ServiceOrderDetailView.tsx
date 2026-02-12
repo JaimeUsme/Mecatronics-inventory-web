@@ -8,7 +8,7 @@ import {
   Crown,
 } from 'lucide-react'
 import { Card } from '@/shared/components/ui/card'
-import type { OrderResponse, OrderMaterialUsage, OrderFeedback } from '@/features/dashboard/types'
+import type { OrderResponse, OrderMaterialUsage } from '@/features/dashboard/types'
 import { useOrderFeedbacks } from '@/features/dashboard/hooks'
 
 
@@ -17,79 +17,48 @@ interface ServiceOrderDetailViewProps {
   onBack: () => void
 }
 
-// ID del tipo de feedback para materiales gastados
-const MATERIAL_FEEDBACK_KIND_ID = 'bd40d1ad-5b89-42a4-a70f-2ec8b2392e16'
-
-// Función para detectar si un feedback es de tipo material
-const isMaterialFeedback = (feedback: OrderFeedback): boolean => {
-  if (feedback.feedback_kind_id === MATERIAL_FEEDBACK_KIND_ID) {
-    try {
-      const parsed = JSON.parse(feedback.body)
-      return Array.isArray(parsed.materials) || parsed.materialUsage !== undefined
-    } catch {
-      return false
-    }
-  }
-  return false
-}
-
-// Función para parsear materiales de un feedback
-const parseMaterialFeedback = (feedback: OrderFeedback): OrderMaterialUsage[] => {
-  try {
-    const parsed = JSON.parse(feedback.body)
-    if (Array.isArray(parsed.materials)) {
-      return parsed.materials.map((m: any) => ({
-        id: m.id,
-        materialId: m.materialId,
-        materialName: m.materialName,
-        materialUnit: m.materialUnit,
-        quantityUsed: m.quantityUsed || 0,
-        quantityDamaged: m.quantityDamaged || 0,
-        createdAt: feedback.created_at,
-      }))
-    }
-    if (parsed.materialUsage && Array.isArray(parsed.materialUsage)) {
-      return parsed.materialUsage.map((m: any) => ({
-        id: m.id,
-        materialId: m.materialId,
-        materialName: m.materialName,
-        materialUnit: m.materialUnit,
-        quantityUsed: m.quantityUsed || 0,
-        quantityDamaged: m.quantityDamaged || 0,
-        createdAt: feedback.created_at,
-      }))
-    }
-  } catch (e) {
-    console.error('Error parsing material feedback:', e)
-  }
-  return []
-}
-
 export function ServiceOrderDetailView({ order, onBack }: ServiceOrderDetailViewProps) {
   const { t } = useTranslation()
-  const { data: feedbacks = [] } = useOrderFeedbacks(order.id)
+  const { data: feedbacksData } = useOrderFeedbacks(order.id)
 
-  // Filtrar solo feedbacks de materiales
-  const materialFeedbacks = feedbacks.filter(isMaterialFeedback)
+  // Usar materiales directamente del backend (ya separados)
+  const materialFeedbacks = feedbacksData?.materials || []
 
   // Agrupar materiales de todos los feedbacks de material
   const groupedMaterials = useMemo(() => {
     const materialMap = new Map<string, OrderMaterialUsage>()
 
     materialFeedbacks.forEach((feedback) => {
-      const materials = parseMaterialFeedback(feedback)
-      materials.forEach((material) => {
-        const existing = materialMap.get(material.materialId)
-        if (existing) {
-          materialMap.set(material.materialId, {
-            ...existing,
-            quantityUsed: existing.quantityUsed + material.quantityUsed,
-            quantityDamaged: existing.quantityDamaged + material.quantityDamaged,
-          })
-        } else {
-          materialMap.set(material.materialId, material)
-        }
-      })
+      if (!feedback.body) return
+      
+      try {
+        const parsed = JSON.parse(feedback.body)
+        const materialsArray = parsed.materials || []
+        
+        materialsArray.forEach((m: any) => {
+          const existing = materialMap.get(m.materialId)
+          if (existing) {
+            // Sumar cantidades si el material ya existe
+            materialMap.set(m.materialId, {
+              ...existing,
+              quantityUsed: existing.quantityUsed + (m.quantityUsed || 0),
+              quantityDamaged: existing.quantityDamaged + (m.quantityDamaged || 0),
+            })
+          } else {
+            materialMap.set(m.materialId, {
+              id: feedback.id,
+              materialId: m.materialId,
+              materialName: m.materialName,
+              materialUnit: m.materialUnit,
+              quantityUsed: m.quantityUsed || 0,
+              quantityDamaged: m.quantityDamaged || 0,
+              createdAt: feedback.created_at,
+            })
+          }
+        })
+      } catch (e) {
+        console.error('Error parsing material feedback:', e)
+      }
     })
 
     return Array.from(materialMap.values())

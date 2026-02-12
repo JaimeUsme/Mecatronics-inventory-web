@@ -4,7 +4,6 @@ import { X } from 'lucide-react'
 import { Card } from '@/shared/components/ui/card'
 import { Button } from '@/shared/components/ui/button'
 import { SignaturePad } from './SignaturePad'
-import { cn } from '@/shared/utils'
 
 interface SignatureModalProps {
   isOpen: boolean

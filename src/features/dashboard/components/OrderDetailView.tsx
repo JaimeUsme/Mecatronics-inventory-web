@@ -158,6 +158,9 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
   const [showSignatureModal, setShowSignatureModal] = useState(false)
   const [isClosingOrder, setIsClosingOrder] = useState(false)
 
+  // ID del tipo de feedback para materiales gastados
+  const MATERIAL_FEEDBACK_KIND_ID = 'bd40d1ad-5b89-42a4-a70f-2ec8b2392e16'
+
   // Tipos de feedback hardcodeados
   const feedbackKinds = [
     { id: 'bd40d1ad-5b89-42a4-a70f-2ec8b2392e16', name: 'Finalizado' },
@@ -1122,8 +1125,8 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                     onClick={async () => {
                       if (!imageToDelete) return
                       try {
-                        const imageIndex = images.findIndex(
-                          (img) => img.id === imageToDelete.id
+                        const imageIndex = allImages.findIndex(
+                          (img: OrderImage) => img.id === imageToDelete.id
                         )
                         await deleteImage.mutateAsync(imageToDelete.id)
                         setImageToDelete(null)
