@@ -3,6 +3,17 @@ export interface CreateMaterialRequest {
   unit: string
   category?: string
   minStock?: number
+  ownershipType?: 'CREW' | 'TECHNICIAN'
+  images?: File[]
+}
+
+export interface UpdateMaterialRequest {
+  name?: string
+  unit?: string
+  category?: string
+  minStock?: number
+  ownershipType?: 'CREW' | 'TECHNICIAN'
+  images?: File[]
 }
 
 export interface MaterialResponse {

@@ -1,3 +1,3 @@
-export { DashboardPage } from './pages/DashboardPage'
+export { DashboardPage, MyOrdersPage } from './pages'
 export { OrderCard } from './components/OrderCard'
 

@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Pencil, Trash2, Image as ImageIcon, X } from 'lucide-react'
+import { Pencil, Trash2, Image as ImageIcon, X, Eye } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import { Card } from '@/shared/components/ui/card'
 import { EditMaterialModal } from './EditMaterialModal'
+import { MaterialDetailModal } from './MaterialDetailModal'
 import { cn } from '@/shared/utils'
 
 export interface Material {
@@ -29,6 +30,7 @@ export function MaterialsTable({ materials }: MaterialsTableProps) {
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
   const [isImagesOpen, setIsImagesOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
   const openImages = (material: Material) => {
     setSelectedMaterial(material)
@@ -89,6 +91,18 @@ export function MaterialsTable({ materials }: MaterialsTableProps) {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 border-gray-300 dark:border-gray-700"
+                      onClick={() => {
+                        setSelectedMaterial(material)
+                        setIsDetailOpen(true)
+                      }}
+                      title="Ver detalles"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
                     {material.images && material.images.length > 0 && (
                       <Button
                         variant="outline"
@@ -182,6 +196,11 @@ export function MaterialsTable({ materials }: MaterialsTableProps) {
         open={isEditOpen}
         material={selectedMaterial}
         onClose={() => setIsEditOpen(false)}
+      />
+      <MaterialDetailModal
+        open={isDetailOpen}
+        material={selectedMaterial}
+        onClose={() => setIsDetailOpen(false)}
       />
     </Card>
   )

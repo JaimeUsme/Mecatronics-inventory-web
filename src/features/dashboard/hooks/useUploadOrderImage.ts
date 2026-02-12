@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ordersService } from '../services'
-import type { OrderImage } from '../types'
+import type { GetOrderImagesResponse } from '../types'
 
 export function useUploadOrderImage(orderId: string) {
   const queryClient = useQueryClient()
 
-  return useMutation<OrderImage[], Error, File>({
+  return useMutation<GetOrderImagesResponse, Error, File>({
     mutationFn: (file) => ordersService.uploadOrderImage(orderId, file),
     onSuccess: (data) => {
       // Actualizar el cache con todas las imágenes (incluyendo la nueva)

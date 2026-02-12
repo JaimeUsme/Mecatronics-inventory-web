@@ -1,3 +1,7 @@
+export { useUsers } from './useUsers'
 export { useEmployees } from './useEmployees'
 export { useTechnicians } from './useTechnicians'
-
+export { useCreateUser } from './useCreateUser'
+export { useUpdateUser } from './useUpdateUser'
+export { useDeleteUser } from './useDeleteUser'
+export { useUpdateProfile } from './useUpdateProfile'

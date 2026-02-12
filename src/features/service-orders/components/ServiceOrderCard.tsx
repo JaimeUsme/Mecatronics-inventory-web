@@ -41,7 +41,7 @@ export function ServiceOrderCard({ order, onClick }: ServiceOrderCardProps) {
   const statusColor = statusColors[order.state] || statusColors.pending
   const statusLabel = statusLabels[order.state] || order.state
 
-  const displayDate = order.assigned_at || order.created_at
+  const displayDate = order.ticket?.assigned_at || order.created_at
 
   const handleClick = () => {
     if (onClick) {

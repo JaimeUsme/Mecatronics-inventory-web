@@ -1,4 +1,4 @@
-import type { OrdersApiResponse, GetOrdersParams, OrderImage, OrderFeedback, CreateFeedbackRequest } from '../types'
+import type { OrdersApiResponse, GetOrdersParams, GetMyOrdersParams, OrderImage, OrderFeedback, CreateFeedbackRequest, GetOrderImagesResponse, GetOrderFeedbacksResponse } from '../types'
 import { getAuthHeaders } from '@/shared/utils/api'
 import { checkAuthError } from '@/shared/utils/checkAuthError'
 
@@ -32,10 +32,6 @@ export const ordersService = {
       queryParams.append('completed', params.completed.toString())
     }
 
-    if (params.search) {
-      queryParams.append('search', params.search.trim())
-    }
-
     if (params.technicianId) {
       queryParams.append('technicianId', params.technicianId)
     }
@@ -48,7 +44,31 @@ export const ordersService = {
       queryParams.append('toDate', params.toDate)
     }
 
-    const url = `${API_BASE_URL}/orders${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    if (params.unscheduled !== undefined) {
+      queryParams.append('unscheduled', params.unscheduled.toString())
+    }
+
+    if (params.scheduled_state !== undefined) {
+      queryParams.append('scheduled_state', params.scheduled_state.toString())
+    }
+
+    if (params.success !== undefined) {
+      queryParams.append('success', params.success.toString())
+    }
+
+    if (params.failure !== undefined) {
+      queryParams.append('failure', params.failure.toString())
+    }
+
+    // Construir la URL manualmente para el parámetro search (reemplazar espacios con %)
+    let url = `${API_BASE_URL}/orders`
+    const queryString = queryParams.toString()
+    if (params.search) {
+      const encodedSearch = params.search.trim().replace(/\s+/g, '%')
+      url += queryString ? `?${queryString}&search=${encodedSearch}` : `?search=${encodedSearch}`
+    } else if (queryString) {
+      url += `?${queryString}`
+    }
     
     console.log('🔍 Buscando órdenes con:', {
       url,
@@ -77,7 +97,70 @@ export const ordersService = {
     return response.json()
   },
 
-  async getOrderImages(orderId: string): Promise<OrderImage[]> {
+  async getMyOrders(params: GetMyOrdersParams = {}): Promise<OrdersApiResponse> {
+    const queryParams = new URLSearchParams()
+    
+    if (params.page) {
+      queryParams.append('page', params.page.toString())
+    }
+    
+    if (params.per_page) {
+      queryParams.append('per_page', params.per_page.toString())
+    }
+
+    if (params.unscheduled !== undefined) {
+      queryParams.append('unscheduled', params.unscheduled.toString())
+    }
+
+    if (params.scheduled_state !== undefined) {
+      queryParams.append('scheduled_state', params.scheduled_state.toString())
+    }
+
+    if (params.success !== undefined) {
+      queryParams.append('success', params.success.toString())
+    }
+
+    if (params.failure !== undefined) {
+      queryParams.append('failure', params.failure.toString())
+    }
+
+    // Construir la URL manualmente para el parámetro search (reemplazar espacios con %)
+    let url = `${API_BASE_URL}/orders/my-orders`
+    const queryString = queryParams.toString()
+    if (params.search) {
+      const encodedSearch = params.search.trim().replace(/\s+/g, '%')
+      url += queryString ? `?${queryString}&search=${encodedSearch}` : `?search=${encodedSearch}`
+    } else if (queryString) {
+      url += `?${queryString}`
+    }
+    
+    console.log('🔍 Buscando mis órdenes con:', {
+      url,
+      params: Object.fromEntries(queryParams.entries())
+    })
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al obtener mis órdenes',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al obtener mis órdenes'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    return response.json()
+  },
+
+  async getOrderImages(orderId: string): Promise<GetOrderImagesResponse> {
     const response = await fetch(`${API_BASE_URL}/orders/${orderId}/images`, {
       method: 'GET',
       headers: getAuthHeaders(),
@@ -99,7 +182,7 @@ export const ordersService = {
     return response.json()
   },
 
-  async uploadOrderImage(orderId: string, file: File): Promise<OrderImage[]> {
+  async uploadOrderImage(orderId: string, file: File): Promise<GetOrderImagesResponse> {
     const formData = new FormData()
     formData.append('file[]', file)
 
@@ -138,8 +221,8 @@ export const ordersService = {
     // Manejar respuestas vacías
     const text = await response.text()
     if (!text || text.trim() === '') {
-      // Si la respuesta está vacía, devolver array vacío o recargar las imágenes
-      return []
+      // Si la respuesta está vacía, devolver estructura vacía
+      return { images: [], sign: null }
     }
 
     try {
@@ -150,7 +233,7 @@ export const ordersService = {
     }
   },
 
-  async getOrderFeedbacks(orderId: string): Promise<OrderFeedback[]> {
+  async getOrderFeedbacks(orderId: string): Promise<GetOrderFeedbacksResponse> {
     const response = await fetch(`${API_BASE_URL}/orders/${orderId}/feedbacks`, {
       method: 'GET',
       headers: getAuthHeaders(),
@@ -172,7 +255,7 @@ export const ordersService = {
     return response.json()
   },
 
-  async createOrderFeedback(orderId: string, payload: CreateFeedbackRequest): Promise<OrderFeedback[]> {
+  async createOrderFeedback(orderId: string, payload: CreateFeedbackRequest): Promise<GetOrderFeedbacksResponse> {
     const response = await fetch(`${API_BASE_URL}/orders/${orderId}/feedbacks`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -195,7 +278,7 @@ export const ordersService = {
     return response.json()
   },
 
-  async deleteOrderImage(orderId: string, imageId: string): Promise<OrderImage[]> {
+  async deleteOrderImage(orderId: string, imageId: string): Promise<GetOrderImagesResponse> {
     const response = await fetch(`${API_BASE_URL}/orders/${orderId}/images/${imageId}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
@@ -215,6 +298,181 @@ export const ordersService = {
     }
 
     return response.json()
+  },
+
+  async getOrderCounts(search?: string): Promise<{
+    failed: number
+    success: number
+    scheduled: number
+    unscheduled: number
+  }> {
+    const queryParams = new URLSearchParams()
+    
+    if (search) {
+      // Reemplazar espacios con % para el search
+      const encodedSearch = search.trim().replace(/\s+/g, '%')
+      queryParams.append('search', encodedSearch)
+    }
+    
+    const url = `${API_BASE_URL}/orders/counts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al obtener contadores de órdenes',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al obtener contadores de órdenes'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    return response.json()
+  },
+
+  async getMyOrderCounts(search?: string): Promise<{
+    failed: number
+    success: number
+    scheduled: number
+    unscheduled: number
+  }> {
+    const queryParams = new URLSearchParams()
+    
+    if (search) {
+      // Reemplazar espacios con % para el search
+      const encodedSearch = search.trim().replace(/\s+/g, '%')
+      queryParams.append('search', encodedSearch)
+    }
+    
+    const url = `${API_BASE_URL}/orders/my-orders/counts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al obtener contadores de mis órdenes',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al obtener contadores de mis órdenes'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    return response.json()
+  },
+
+  async rescheduleOrder(orderId: string, feedbackBody: string): Promise<void> {
+    const url = `${API_BASE_URL}/orders/${orderId}/reschedule`
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        feedback_body: feedbackBody,
+      }),
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al reprogramar la orden',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al reprogramar la orden'
+      )
+      error.status = response.status
+      throw error
+    }
+  },
+
+  async closeOrder(orderId: string, signatureDataUrl: string, result: 'success' | 'failure'): Promise<void> {
+    // Convertir la imagen base64 a Blob
+    const base64Data = signatureDataUrl.split(',')[1]
+    const byteCharacters = atob(base64Data)
+    const byteNumbers = new Array(byteCharacters.length)
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i)
+    }
+    const byteArray = new Uint8Array(byteNumbers)
+    const blob = new Blob([byteArray], { type: 'image/png' })
+
+    // Crear un File con nombre especial para reconocer la firma
+    const signatureFile = new File([blob], `sign-${orderId}.png`, { type: 'image/png' })
+
+    // Subir la firma como imagen usando el endpoint de imágenes
+    const formData = new FormData()
+    formData.append('file[]', signatureFile)
+
+    const authHeaders = getAuthHeaders()
+    const headers: Record<string, string> = {}
+    const authHeaderValue = Array.isArray(authHeaders)
+      ? authHeaders.find(([key]) => key.toLowerCase() === 'authorization')?.[1]
+      : (authHeaders as Record<string, string>)['Authorization']
+    
+    if (authHeaderValue) {
+      headers['Authorization'] = authHeaderValue
+    }
+
+    const uploadResponse = await fetch(`${API_BASE_URL}/orders/${orderId}/images`, {
+      method: 'POST',
+      headers,
+      body: formData,
+      credentials: 'include',
+    })
+
+    if (!uploadResponse.ok && uploadResponse.status !== 201) {
+      checkAuthError(uploadResponse)
+      const errorData = await uploadResponse.json().catch(() => ({
+        message: 'Error al subir la firma',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al subir la firma'
+      )
+      error.status = uploadResponse.status
+      throw error
+    }
+
+    // Llamar al endpoint de cerrar orden usando PATCH
+    const response = await fetch(`${API_BASE_URL}/orders/${orderId}/close`, {
+      method: 'PATCH',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        result,
+      }),
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al cerrar la orden',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al cerrar la orden'
+      )
+      error.status = response.status
+      throw error
+    }
   },
 }
 

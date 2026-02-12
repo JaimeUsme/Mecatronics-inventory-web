@@ -38,5 +38,23 @@ export interface ProfileResponse {
   name: string
   email: string
   userType: string
+  userable_id?: string
   wispro?: WisproConnection
+}
+
+export interface ReconnectWisproResponse {
+  accessToken: string | null
+  success: boolean
+  message: string
+}
+
+export interface AddWisproCredentialsRequest {
+  wisproEmail: string
+  wisproPassword: string
+}
+
+export interface AddWisproCredentialsResponse {
+  accessToken: string
+  success: boolean
+  message: string
 }

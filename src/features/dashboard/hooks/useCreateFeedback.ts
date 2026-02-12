@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ordersService } from '../services'
-import type { CreateFeedbackRequest, OrderFeedback } from '../types'
+import type { CreateFeedbackRequest, GetOrderFeedbacksResponse } from '../types'
 import { useTranslation } from 'react-i18next'
 
 export function useCreateFeedback(orderId: string) {
   const queryClient = useQueryClient()
   const { i18n } = useTranslation()
 
-  return useMutation<OrderFeedback[], Error, Omit<CreateFeedbackRequest, 'locale'>>({
+  return useMutation<GetOrderFeedbacksResponse, Error, Omit<CreateFeedbackRequest, 'locale'>>({
     mutationFn: (payload) => {
       return ordersService.createOrderFeedback(orderId, {
         ...payload,

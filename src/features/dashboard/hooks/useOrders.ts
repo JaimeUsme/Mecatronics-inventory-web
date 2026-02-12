@@ -4,13 +4,23 @@ import { useAuthStore } from '@/features/auth/store'
 import type { GetOrdersParams } from '../types'
 
 export function useOrders(params: GetOrdersParams = {}) {
-  const company = useAuthStore((state) => state.company)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  
+  // Si es una consulta de contador (per_page: 1 y solo un filtro de estado), usar configuración diferente
+  const isCountQuery = params.per_page === 1 && 
+    !params.search && 
+    (!params.page || params.page === 1) &&
+    (params.unscheduled || params.scheduled_state || params.success || params.failure)
 
   return useQuery({
-    queryKey: ['orders', params.page, params.per_page, params.in_progress, params.scheduled, params.employee_id, params.completed, params.search, params.technicianId, params.fromDate, params.toDate],
+    queryKey: ['orders', params.page, params.per_page, params.in_progress, params.scheduled, params.employee_id, params.completed, params.search, params.technicianId, params.fromDate, params.toDate, params.unscheduled, params.scheduled_state, params.success, params.failure],
     queryFn: () => ordersService.getOrders(params),
-    enabled: company === 'wispro', // Solo ejecutar si es Wispro
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: isAuthenticated, // Ejecutar si está autenticado
+    staleTime: isCountQuery ? Infinity : 10 * 60 * 1000, // Infinity para contadores (nunca se consideran stale), 10 minutos para consultas normales
+    gcTime: 30 * 60 * 1000, // 30 minutes - mantener en cache más tiempo
+    refetchOnMount: isCountQuery ? false : false, // No refetch en mount - usar caché si existe
+    refetchOnWindowFocus: false, // No refetch al enfocar la ventana
+    refetchOnReconnect: false, // No refetch al reconectar
   })
 }
 

@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import {
   Search,
   Plus,
@@ -39,12 +40,24 @@ function formatDate(dateString: string, locale: string) {
 
 export function StockManagementPage() {
   const { t, i18n } = useTranslation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [locationFilter, setLocationFilter] = useState<string>('all')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | 'normal' | 'low' | 'out_of_stock'>('all')
 
   const debouncedSearch = useDebounce(search, 500)
+
+  // Leer locationId de la URL y aplicarlo al filtro
+  useEffect(() => {
+    const locationIdFromUrl = searchParams.get('locationId')
+    if (locationIdFromUrl) {
+      setLocationFilter(locationIdFromUrl)
+      // Limpiar el parámetro de la URL después de aplicarlo
+      searchParams.delete('locationId')
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   const { data: locationsData } = useLocations()
   const locations = locationsData ?? []

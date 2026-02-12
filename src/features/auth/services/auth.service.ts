@@ -4,6 +4,9 @@ import type {
   LoginErrorResponse,
   CurrentUser,
   ProfileResponse,
+  ReconnectWisproResponse,
+  AddWisproCredentialsRequest,
+  AddWisproCredentialsResponse,
 } from '../types'
 import { getAuthHeaders } from '@/shared/utils/api'
 import { checkAuthError } from '@/shared/utils/checkAuthError'
@@ -117,6 +120,73 @@ export const authService = {
     }
 
     return response.json()
+  },
+
+  async reconnectWispro(): Promise<ReconnectWisproResponse> {
+    const response = await fetch(`${API_BASE_URL}/internal-auth/reconnect-wispro`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al reconectar con Wispro',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al reconectar con Wispro'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    const data = await response.json()
+    
+    // Si la respuesta es exitosa pero success es false, lanzar un error
+    if (!data.success || !data.accessToken) {
+      const error: Error & { status?: number } = new Error(
+        data.message || 'No se pudo reconectar con Wispro'
+      )
+      error.status = 400
+      throw error
+    }
+
+    return data
+  },
+
+  async addWisproCredentials(credentials: AddWisproCredentialsRequest): Promise<AddWisproCredentialsResponse> {
+    const response = await fetch(`${API_BASE_URL}/internal-auth/add-wispro-credentials`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(credentials),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al agregar credenciales de Wispro',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al agregar credenciales de Wispro'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    const data = await response.json()
+    
+    // Si la respuesta es exitosa pero success es false, lanzar un error
+    if (!data.success || !data.accessToken) {
+      const error: Error & { status?: number } = new Error(
+        data.message || 'No se pudieron agregar las credenciales de Wispro'
+      )
+      error.status = 400
+      throw error
+    }
+
+    return data
   },
 }
 

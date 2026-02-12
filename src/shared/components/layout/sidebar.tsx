@@ -1,23 +1,20 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Package,
   Users,
   ChevronLeft,
   ChevronRight,
-  LogOut,
   ChevronDown,
   Boxes,
   MapPin,
   Warehouse,
   ArrowLeftRight,
   FileText,
+  Settings,
 } from 'lucide-react'
 import { cn } from '@/shared/utils'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
-import { useAuthStore } from '@/features/auth/store'
-import { useCurrentUser } from '@/features/auth/hooks'
 
 interface MenuItem {
   id: string
@@ -42,82 +39,12 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [ordersMenuOpen, setOrdersMenuOpen] = useState(false)
   const [inventoryMenuOpen, setInventoryMenuOpen] = useState(false)
-  const logout = useAuthStore((state) => state.logout)
-  const company = useAuthStore((state) => state.company)
-  const { data: currentUser } = useCurrentUser()
-
-  const handleLogout = () => {
-    // Limpiar todo el cache de React Query
-    queryClient.clear()
-    // Hacer logout
-    logout()
-    // Navegar al login
-    navigate('/login')
-  }
 
   const menuItems: MenuItem[] = useMemo(() => {
-    // Si la compañía es Mecatronics, mostrar menú de Inventario
-    if (company === 'mecatronics') {
-      return [
-        {
-          id: 'inventory',
-          label: t('sidebar.inventory'),
-          icon: Package,
-          path: '/dashboard/inventory',
-          hasSubmenu: true,
-          submenuItems: [
-            {
-              id: 'stock',
-              label: t('sidebar.stockManagement'),
-              path: '/dashboard/inventory/stock',
-              icon: Warehouse,
-            },
-            {
-              id: 'transfers',
-              label: t('sidebar.transfers'),
-              path: '/dashboard/inventory/transfers',
-              icon: ArrowLeftRight,
-            },
-            {
-              id: 'materials',
-              label: t('sidebar.materials'),
-              path: '/dashboard/inventory/materials',
-              icon: Boxes,
-            },
-            {
-              id: 'locations',
-              label: t('sidebar.locations'),
-              path: '/dashboard/inventory/locations',
-              icon: MapPin,
-            },
-            {
-              id: 'service-orders-materials',
-              label: t('sidebar.serviceOrderMaterials'),
-              path: '/dashboard/service-orders/materials',
-              icon: FileText,
-            },
-          ],
-        },
-        {
-          id: 'crews',
-          label: t('sidebar.crews'),
-          icon: Users,
-          path: '/dashboard/crews',
-        },
-      ]
-    }
-
-    // Por defecto (Wispro) mostrar menú de Órdenes
-    // Usar userable_id si está disponible, sino usar id
-    const employeeIdForOrders = currentUser?.userable_id || currentUser?.id
-    const myOrdersPath = employeeIdForOrders
-      ? `/dashboard?employee_id=${employeeIdForOrders}`
-      : '/dashboard'
-
+    // Mecatronics tiene acceso a todo
     return [
       {
         id: 'orders',
@@ -134,8 +61,7 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
           {
             id: 'my-orders',
             label: t('sidebar.myOrders'),
-            path: myOrdersPath,
-            employeeId: employeeIdForOrders,
+            path: '/dashboard/my-orders',
           },
         ],
       },
@@ -145,8 +71,66 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
         icon: Users,
         path: '/dashboard/employees',
       },
+      {
+        id: 'inventory',
+        label: t('sidebar.inventory'),
+        icon: Package,
+        path: '/dashboard/inventory',
+        hasSubmenu: true,
+        submenuItems: [
+          {
+            id: 'stock',
+            label: t('sidebar.stockManagement'),
+            path: '/dashboard/inventory/stock',
+            icon: Warehouse,
+          },
+          {
+            id: 'transfers',
+            label: t('sidebar.transfers'),
+            path: '/dashboard/inventory/transfers',
+            icon: ArrowLeftRight,
+          },
+          {
+            id: 'materials',
+            label: t('sidebar.materials'),
+            path: '/dashboard/inventory/materials',
+            icon: Boxes,
+          },
+          {
+            id: 'locations',
+            label: t('sidebar.locations'),
+            path: '/dashboard/inventory/locations',
+            icon: MapPin,
+          },
+          {
+            id: 'service-orders-materials',
+            label: t('sidebar.serviceOrderMaterials'),
+            path: '/dashboard/service-orders/materials',
+            icon: FileText,
+          },
+        ],
+      },
+      {
+        id: 'crews',
+        label: t('sidebar.crews'),
+        icon: Users,
+        path: '/dashboard/crews',
+      },
+      {
+        id: 'users',
+        label: t('sidebar.users'),
+        icon: Settings,
+        path: '/dashboard/users',
+      },
     ]
-  }, [t, currentUser?.id, currentUser?.userable_id, company])
+  }, [t])
+
+  // Abrir automáticamente el submenú de órdenes si estamos en /dashboard o /dashboard/my-orders
+  useEffect(() => {
+    if (location.pathname === '/dashboard' || location.pathname.startsWith('/dashboard/my-orders')) {
+      setOrdersMenuOpen(true)
+    }
+  }, [location.pathname])
 
   const handleItemClick = (path: string) => {
     navigate(path)
@@ -170,22 +154,13 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
   }
 
   const isSubmenuActive = (path: string) => {
-    const url = new URL(path, window.location.origin)
-    const currentUrl = new URL(window.location.href)
-    
-    // Comparar pathname
-    if (url.pathname !== currentUrl.pathname) return false
-    
-    // Comparar employee_id si existe
-    const employeeId = url.searchParams.get('employee_id')
-    const currentEmployeeId = currentUrl.searchParams.get('employee_id')
-    
-    if (employeeId) {
-      return employeeId === currentEmployeeId
+    // Comparar pathname directamente
+    // Si el path es /dashboard, solo está activo si la URL actual es exactamente /dashboard (sin /my-orders)
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard'
     }
-    
-    // Si no hay employee_id en el path, está activo si tampoco hay en la URL actual
-    return !currentEmployeeId
+    // Para otras rutas, verificar si el pathname coincide
+    return location.pathname === path || location.pathname.startsWith(path + '/')
   }
 
   return (
@@ -343,21 +318,6 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
         })}
       </nav>
 
-      {/* Logout button */}
-      <div className="p-2 border-t border-gray-200 dark:border-gray-800 flex-shrink-0">
-        <button
-          onClick={handleLogout}
-          className={cn(
-            'w-full flex items-center gap-3 rounded-lg transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20',
-            isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'
-          )}
-        >
-          <LogOut className="h-5 w-5 flex-shrink-0" />
-          {!isCollapsed && (
-            <span className="font-medium">{t('sidebar.logout')}</span>
-          )}
-        </button>
-      </div>
     </aside>
   )
 }

@@ -8,7 +8,6 @@ import {
   Calendar,
   Image as ImageIcon,
   Check,
-  Clock,
   Upload,
   Send,
   MessageSquare,
@@ -20,6 +19,7 @@ import {
   Search,
   Trash2,
   Plus,
+  CalendarX,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Card } from '@/shared/components/ui/card'
@@ -35,19 +35,22 @@ import {
 import { cn } from '@/shared/utils'
 import { useDebounce } from '@/shared/hooks'
 import type { OrderResponse, OrderMaterialUsage, OrderFeedback, OrderImage } from '../types'
-import { useOrderImages, useUploadOrderImage, useDeleteOrderImage, useOrderFeedbacks, useCreateFeedback } from '../hooks'
+import { useOrderImages, useUploadOrderImage, useDeleteOrderImage, useOrderFeedbacks, useCreateFeedback, useRescheduleOrder } from '../hooks'
+import { SignatureModal } from './SignatureModal'
+import { ordersService } from '../services'
 import { useMaterials, useConsumeMaterials } from '@/features/inventory/hooks'
 import { getAuthHeaders } from '@/shared/utils/api'
 import type { MaterialResponse } from '@/features/inventory/types'
 import { format } from 'date-fns'
 import { es, enUS } from 'date-fns/locale'
+import { getOrderStatusLabel } from '../utils/orderStatus'
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  in_progress: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  completed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  cancelled: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
-  closed: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+  programada: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  no_programada: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+  exitosa: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  fallida: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  otra: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
 }
 
 function formatDate(dateString: string, locale: string): string {
@@ -90,15 +93,70 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
-  const { data: images = [], isLoading: isLoadingImages } = useOrderImages(order.id)
+  const { data: imagesData, isLoading: isLoadingImages } = useOrderImages(order.id)
+  
+  // Usar datos ya separados del backend
+  const normalImages = imagesData?.images || []
+  const signatureImage = imagesData?.sign || null
+  // Para el lightbox, combinar todas las imágenes
+  const allImages = [...normalImages, ...(signatureImage ? [signatureImage] : [])]
   const uploadImage = useUploadOrderImage(order.id)
   const deleteImage = useDeleteOrderImage(order.id)
   const [imageToDelete, setImageToDelete] = useState<OrderImage | null>(null)
-  const { data: feedbacks = [], isLoading: isLoadingFeedbacks } = useOrderFeedbacks(order.id)
+  const { data: feedbacksData, isLoading: isLoadingFeedbacks } = useOrderFeedbacks(order.id)
+  
+  // Usar datos ya separados del backend
+  const regularFeedbacks = feedbacksData?.feedbacks || []
+  const materialFeedbacks = feedbacksData?.materials || []
+  
+  // Parsear materiales de los feedbacks de materiales
+  const groupedMaterials = useMemo(() => {
+    const materialMap = new Map<string, OrderMaterialUsage>()
+
+    materialFeedbacks.forEach((feedback) => {
+      if (!feedback.body) return
+      
+      try {
+        const parsed = JSON.parse(feedback.body)
+        const materialsArray = parsed.materials || []
+        
+        materialsArray.forEach((m: any) => {
+          const existing = materialMap.get(m.materialId)
+          if (existing) {
+            // Sumar cantidades si el material ya existe
+            materialMap.set(m.materialId, {
+              ...existing,
+              quantityUsed: existing.quantityUsed + (m.quantityUsed || 0),
+              quantityDamaged: existing.quantityDamaged + (m.quantityDamaged || 0),
+            })
+          } else {
+            materialMap.set(m.materialId, {
+              id: feedback.id,
+              materialId: m.materialId,
+              materialName: m.materialName,
+              materialUnit: m.materialUnit,
+              quantityUsed: m.quantityUsed || 0,
+              quantityDamaged: m.quantityDamaged || 0,
+              createdAt: feedback.created_at,
+            })
+          }
+        })
+      } catch (e) {
+        console.error('Error parsing material feedback:', e)
+      }
+    })
+
+    return Array.from(materialMap.values())
+  }, [materialFeedbacks])
   const createFeedback = useCreateFeedback(order.id)
   const consumeMaterials = useConsumeMaterials()
+  const rescheduleOrder = useRescheduleOrder(order.id)
   const [feedbackComment, setFeedbackComment] = useState('')
   const [feedbackKindId, setFeedbackKindId] = useState<string>('')
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false)
+  const [rescheduleFeedback, setRescheduleFeedback] = useState('')
+  const [showSignatureModal, setShowSignatureModal] = useState(false)
+  const [isClosingOrder, setIsClosingOrder] = useState(false)
 
   // Tipos de feedback hardcodeados
   const feedbackKinds = [
@@ -106,84 +164,6 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
     { id: 'reprogramado-id', name: 'Reprogramado' },
     { id: 'otro-id', name: 'Otro' },
   ]
-
-  // ID del tipo de feedback para materiales gastados (usaremos uno existente o crearemos uno nuevo)
-  const MATERIAL_FEEDBACK_KIND_ID = 'bd40d1ad-5b89-42a4-a70f-2ec8b2392e16' // Por ahora usamos "Finalizado", pero debería ser uno específico
-
-  // Función para detectar si un feedback es de tipo material
-  const isMaterialFeedback = (feedback: OrderFeedback): boolean => {
-    // Verificar si el feedback_kind_id es el de materiales
-    if (feedback.feedback_kind_id === MATERIAL_FEEDBACK_KIND_ID) {
-      // Intentar parsear el body como JSON para verificar si contiene materiales
-      try {
-        const parsed = JSON.parse(feedback.body)
-        return Array.isArray(parsed.materials) || parsed.materialUsage !== undefined
-      } catch {
-        return false
-      }
-    }
-    return false
-  }
-
-  // Función para parsear materiales de un feedback
-  const parseMaterialFeedback = (feedback: OrderFeedback): OrderMaterialUsage[] => {
-    try {
-      const parsed = JSON.parse(feedback.body)
-      if (Array.isArray(parsed.materials)) {
-        return parsed.materials.map((m: any) => ({
-          id: m.id,
-          materialId: m.materialId,
-          materialName: m.materialName,
-          materialUnit: m.materialUnit,
-          quantityUsed: m.quantityUsed || 0,
-          quantityDamaged: m.quantityDamaged || 0,
-          createdAt: feedback.created_at,
-        }))
-      }
-      if (parsed.materialUsage && Array.isArray(parsed.materialUsage)) {
-        return parsed.materialUsage.map((m: any) => ({
-          id: m.id,
-          materialId: m.materialId,
-          materialName: m.materialName,
-          materialUnit: m.materialUnit,
-          quantityUsed: m.quantityUsed || 0,
-          quantityDamaged: m.quantityDamaged || 0,
-          createdAt: feedback.created_at,
-        }))
-      }
-    } catch (e) {
-      console.error('Error parsing material feedback:', e)
-    }
-    return []
-  }
-
-  // Separar feedbacks de materiales y comentarios normales
-  const materialFeedbacks = feedbacks.filter(isMaterialFeedback)
-  const regularFeedbacks = feedbacks.filter((f) => !isMaterialFeedback(f))
-
-  // Agrupar materiales de todos los feedbacks de material
-  const groupedMaterials = useMemo(() => {
-    const materialMap = new Map<string, OrderMaterialUsage>()
-
-    materialFeedbacks.forEach((feedback) => {
-      const materials = parseMaterialFeedback(feedback)
-      materials.forEach((material) => {
-        const existing = materialMap.get(material.materialId)
-        if (existing) {
-          // Sumar cantidades si el material ya existe
-          materialMap.set(material.materialId, {
-            ...existing,
-            quantityUsed: existing.quantityUsed + material.quantityUsed,
-            quantityDamaged: existing.quantityDamaged + material.quantityDamaged,
-          })
-        } else {
-          materialMap.set(material.materialId, material)
-        }
-      })
-    })
-
-    return Array.from(materialMap.values())
-  }, [materialFeedbacks])
 
   // Inicializar feedbackKindId con el primer tipo disponible
   useEffect(() => {
@@ -264,24 +244,24 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
     event.target.value = ''
   }
 
-  const getStatusLabel = (state: string) => {
-    switch (state) {
-      case 'pending':
-        return t('dashboard.pending')
-      case 'in_progress':
-        return t('dashboard.inProgress')
-      case 'completed':
-        return t('dashboard.completed')
-      case 'cancelled':
-        return t('dashboard.cancelled')
-      case 'closed':
-        return t('dashboard.completed')
+  const statusLabel = getOrderStatusLabel(order)
+  
+  const getStatusLabelText = (label: string) => {
+    switch (label) {
+      case 'programada':
+        return t('dashboard.scheduled')
+      case 'no_programada':
+        return t('dashboard.unscheduled')
+      case 'exitosa':
+        return t('dashboard.success')
+      case 'fallida':
+        return t('dashboard.failure')
       default:
-        return state
+        return t('dashboard.allStatuses')
     }
   }
 
-  const statusColor = statusColors[order.state] || statusColors.pending
+  const statusColor = statusColors[statusLabel] || statusColors.otra
   const locale = i18n.language || 'es'
 
   return (
@@ -309,14 +289,24 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                   {order.description || t('dashboard.noDescription')}
                 </h2>
               </div>
-              <span
-                className={cn(
-                  'px-3 py-1 rounded-md text-sm font-medium',
-                  statusColor
-                )}
-              >
-                {getStatusLabel(order.state)}
-              </span>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => setShowRescheduleModal(true)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <CalendarX className="h-4 w-4" />
+                  {t('orderDetail.reschedule') || 'Reprogramar'}
+                </Button>
+                <span
+                  className={cn(
+                    'px-3 py-1 rounded-md text-sm font-medium',
+                    statusColor
+                  )}
+                >
+                  {getStatusLabelText(statusLabel)}
+                </span>
+              </div>
             </div>
 
             {/* Description */}
@@ -362,7 +352,7 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                     {t('orderDetail.address')}
                   </p>
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    {order.full_address}
+                    {order.gps_point?.full_address || t('dashboard.noDescription')}
                   </p>
                 </div>
               </div>
@@ -379,7 +369,7 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                 </div>
               </div>
 
-              {order.due_date && (
+              {order.end_at && (
                 <div className="flex items-start gap-3">
                   <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
                   <div>
@@ -387,13 +377,34 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                       {t('orderDetail.dueDate')}
                     </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {formatDate(order.due_date, locale)}
+                      {formatDate(order.end_at, locale)}
                     </p>
                   </div>
                 </div>
               )}
             </div>
           </Card>
+
+          {/* Signature Section */}
+          {signatureImage && (
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {t('orderDetail.userSignature')}
+                </h3>
+              </div>
+              <div className="flex justify-center">
+                <div className="relative max-w-2xl w-full">
+                  <img
+                    src={signatureImage.original}
+                    alt={t('orderDetail.userSignature')}
+                    className="w-full h-auto border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 p-4"
+                  />
+                </div>
+              </div>
+            </Card>
+          )}
 
           {/* Images Section */}
           <Card className="p-6">
@@ -447,39 +458,43 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                   {t('orderDetail.loadingImages')}
                 </p>
               </div>
-            ) : images.length > 0 ? (
+            ) : normalImages.length > 0 ? (
               <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                {images.map((image, index) => (
-                  <div
-                    key={image.id}
-                    className="relative aspect-square rounded-md overflow-hidden bg-gray-100 dark:bg-gray-800 group border border-gray-200 dark:border-gray-700"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedImageIndex(index)}
-                      className="w-full h-full hover:opacity-90 transition-opacity cursor-pointer"
+                {normalImages.map((image) => {
+                  // Encontrar el índice real en el array completo para el lightbox
+                  const realIndex = allImages.findIndex(img => img.id === image.id)
+                  return (
+                    <div
+                      key={image.id}
+                      className="relative aspect-square rounded-md overflow-hidden bg-gray-100 dark:bg-gray-800 group border border-gray-200 dark:border-gray-700"
                     >
-                      <img
-                        src={image.thumb}
-                        alt={image.filename}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setImageToDelete(image)
-                      }}
-                      className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      aria-label={t('orderDetail.deleteImage')}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedImageIndex(realIndex)}
+                        className="w-full h-full hover:opacity-90 transition-opacity cursor-pointer"
+                      >
+                        <img
+                          src={image.thumb}
+                          alt={image.filename}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setImageToDelete(image)
+                        }}
+                        className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label={t('orderDetail.deleteImage')}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
             ) : (
               <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
@@ -490,7 +505,7 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
           </Card>
 
           {/* Image Lightbox Modal */}
-          {selectedImageIndex !== null && images[selectedImageIndex] && (
+          {selectedImageIndex !== null && allImages[selectedImageIndex] && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
               onClick={() => setSelectedImageIndex(null)}
@@ -507,7 +522,7 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                 </button>
 
                 {/* Previous Button */}
-                {images.length > 1 && selectedImageIndex > 0 && (
+                {allImages.length > 1 && selectedImageIndex > 0 && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -522,7 +537,7 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                 )}
 
                 {/* Next Button */}
-                {images.length > 1 && selectedImageIndex < images.length - 1 && (
+                {allImages.length > 1 && selectedImageIndex < allImages.length - 1 && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -542,16 +557,16 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <img
-                    src={images[selectedImageIndex].original}
-                    alt={images[selectedImageIndex].filename}
+                    src={allImages[selectedImageIndex].original}
+                    alt={allImages[selectedImageIndex].filename}
                     className="max-w-full max-h-[90vh] object-contain rounded-lg"
                   />
                   <p className="text-white text-center mt-4 text-sm">
-                    {images[selectedImageIndex].filename}
+                    {allImages[selectedImageIndex].filename}
                   </p>
-                  {images.length > 1 && (
+                  {allImages.length > 1 && (
                     <p className="text-white/70 text-center mt-2 text-xs">
-                      {selectedImageIndex + 1} / {images.length}
+                      {selectedImageIndex + 1} / {allImages.length}
                     </p>
                   )}
                 </div>
@@ -996,54 +1011,57 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
           {/* Close Order Button */}
           {order.state !== 'completed' && order.state !== 'cancelled' && order.state !== 'closed' && (
             <Card className="p-6">
-              <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                <Check className="h-5 w-5 mr-2" />
-                {t('orderDetail.closeOrder')}
+              <Button
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => setShowSignatureModal(true)}
+                disabled={isClosingOrder}
+              >
+                {isClosingOrder ? (
+                  <>
+                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    {t('orderDetail.closingOrder')}
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-5 w-5 mr-2" />
+                    {t('orderDetail.closeOrder')}
+                  </>
+                )}
               </Button>
             </Card>
           )}
 
-          {/* Action History */}
-          <Card className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {t('orderDetail.actionHistory')}
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              {order.action_history && order.action_history.length > 0 ? (
-                order.action_history.map((action) => (
-                  <div key={action.id} className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {action.action}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {action.user} • {formatRelativeTime(action.created_at, locale)}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {t('orderDetail.orderCreated')}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('orderDetail.admin')} • {formatRelativeTime(order.created_at, locale)}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </Card>
+          {/* Action History - Removed as it's not in the new API structure */}
         </div>
       </div>
+
+      {/* Modal de firma digital */}
+      <SignatureModal
+        isOpen={showSignatureModal}
+        onClose={() => setShowSignatureModal(false)}
+        onConfirm={async (signatureDataUrl) => {
+          try {
+            setIsClosingOrder(true)
+            // Por defecto, cerrar como exitosa. Si necesitas permitir elegir, puedes agregar un selector
+            await ordersService.closeOrder(order.id, signatureDataUrl, 'success')
+            // Invalidar las queries para refrescar los datos
+            queryClient.invalidateQueries({ queryKey: ['orders'] })
+            queryClient.invalidateQueries({ queryKey: ['myOrders'] })
+            queryClient.invalidateQueries({ queryKey: ['order-details', order.id] })
+            queryClient.invalidateQueries({ queryKey: ['orderCounts'] })
+            queryClient.invalidateQueries({ queryKey: ['myOrderCounts'] })
+            setShowSignatureModal(false)
+            // Opcional: mostrar mensaje de éxito o redirigir
+          } catch (error) {
+            console.error('Error al cerrar la orden:', error)
+            // El error se manejará con toast si está configurado
+          } finally {
+            setIsClosingOrder(false)
+          }
+        }}
+        isLoading={isClosingOrder}
+        orderNumber={`ORD-${String(order.sequential_id).padStart(3, '0')}`}
+      />
 
       {/* Modal de confirmación para eliminar imagen */}
       {imageToDelete && (
@@ -1130,6 +1148,73 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                     {deleteImage.isPending
                       ? t('orderDetail.deleting')
                       : t('orderDetail.delete')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Reschedule Modal */}
+      {showRescheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <Card className="w-full max-w-md mx-4 rounded-xl shadow-2xl">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                  <CalendarX className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  {t('orderDetail.rescheduleOrder') || 'Reprogramar Orden'}
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {t('orderDetail.rescheduleMessage') || 'Por favor, proporciona un motivo para reprogramar esta orden.'}
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    {t('orderDetail.feedback') || 'Motivo'}
+                  </label>
+                  <Textarea
+                    placeholder={t('orderDetail.reschedulePlaceholder') || 'Ej: Usuario no está en la casa'}
+                    rows={4}
+                    className="resize-none"
+                    value={rescheduleFeedback}
+                    onChange={(e) => setRescheduleFeedback(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowRescheduleModal(false)
+                      setRescheduleFeedback('')
+                    }}
+                    disabled={rescheduleOrder.isPending}
+                  >
+                    {t('orderDetail.cancel') || 'Cancelar'}
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await rescheduleOrder.mutateAsync(rescheduleFeedback.trim())
+                        setShowRescheduleModal(false)
+                        setRescheduleFeedback('')
+                        // Mostrar mensaje de éxito (podrías usar un toast aquí)
+                        alert(t('orderDetail.rescheduleSuccess') || 'Orden reprogramada exitosamente')
+                      } catch (error) {
+                        console.error('Error al reprogramar orden:', error)
+                        alert(t('orderDetail.rescheduleError') || 'Error al reprogramar la orden')
+                      }
+                    }}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                    disabled={!rescheduleFeedback.trim() || rescheduleOrder.isPending}
+                  >
+                    {rescheduleOrder.isPending
+                      ? (t('orderDetail.processing') || 'Procesando...')
+                      : (t('orderDetail.confirmReschedule') || 'Confirmar Reprogramación')}
                   </Button>
                 </div>
               </div>

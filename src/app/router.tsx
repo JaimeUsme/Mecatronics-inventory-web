@@ -1,8 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from './components/RootLayout'
-import { LoginPage } from '@/features/auth/pages'
-import { DashboardPage } from '@/features/dashboard'
-import { EmployeesPage } from '@/features/users'
+import { LoginPage, AccountSettingsPage } from '@/features/auth/pages'
+import { DashboardPage, MyOrdersPage } from '@/features/dashboard'
+import { EmployeesPage, UsersPage } from '@/features/users'
 import { MaterialsPage, LocationsPage, StockManagementPage, TransfersPage } from '@/features/inventory'
 import { ServiceOrderMaterialsPage } from '@/features/service-orders'
 import { CrewManagementPage } from '@/features/crews'
@@ -22,6 +22,10 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <DashboardPage />,
+      },
+      {
+        path: '/dashboard/my-orders',
+        element: <MyOrdersPage />,
       },
       {
         path: '/dashboard/employees',
@@ -50,6 +54,14 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard/crews',
         element: <CrewManagementPage />,
+      },
+      {
+        path: '/dashboard/users',
+        element: <UsersPage />,
+      },
+      {
+        path: '/dashboard/account',
+        element: <AccountSettingsPage />,
       },
     ],
   },

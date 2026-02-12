@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Card } from '@/shared/components/ui/card'
 import { cn } from '@/shared/utils'
 import type { OrderResponse } from '../types'
+import { getOrderStatusLabel } from '../utils/orderStatus'
 
 interface OrderCardProps {
   order: OrderResponse
@@ -11,13 +12,15 @@ interface OrderCardProps {
 }
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  in_progress: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  completed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  cancelled: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+  programada: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  no_programada: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+  exitosa: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  fallida: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  otra: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
 }
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string | null): string {
+  if (!dateString) return ''
   try {
     const date = new Date(dateString)
     return new Intl.DateTimeFormat('es-ES', {
@@ -33,22 +36,25 @@ function formatDate(dateString: string): string {
 export function OrderCard({ order, onViewDetails }: OrderCardProps) {
   const { t } = useTranslation()
 
-  const getStatusLabel = (state: string) => {
-    switch (state) {
-      case 'pending':
-        return t('dashboard.pending')
-      case 'in_progress':
-        return t('dashboard.inProgress')
-      case 'completed':
-        return t('dashboard.completed')
-      case 'cancelled':
-        return t('dashboard.cancelled')
+  const statusLabel = getOrderStatusLabel(order)
+  
+  const getStatusLabelText = (label: string) => {
+    switch (label) {
+      case 'programada':
+        return t('dashboard.scheduled')
+      case 'no_programada':
+        return t('dashboard.unscheduled')
+      case 'exitosa':
+        return t('dashboard.success')
+      case 'fallida':
+        return t('dashboard.failure')
       default:
-        return state
+        return t('dashboard.allStatuses')
     }
   }
 
-  const statusColor = statusColors[order.state] || statusColors.pending
+  const statusColor = statusColors[statusLabel] || statusColors.otra
+  const fullAddress = order.gps_point?.full_address || ''
 
   return (
     <Card className="p-6 hover:shadow-lg transition-shadow">
@@ -64,7 +70,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
             statusColor
           )}
         >
-          {getStatusLabel(order.state)}
+          {getStatusLabelText(statusLabel)}
         </span>
       </div>
 
@@ -75,16 +81,18 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
       <div className="space-y-3 mb-4">
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <Building2 className="h-4 w-4 flex-shrink-0" />
-          <span className="line-clamp-2">{order.full_address}</span>
+          <span className="line-clamp-2">{fullAddress || t('dashboard.noDescription')}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <User className="h-4 w-4 flex-shrink-0" />
           <span className="line-clamp-1">{order.employee_name}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Calendar className="h-4 w-4 flex-shrink-0" />
-          <span>{formatDate(order.assigned_at)}</span>
-        </div>
+        {order.created_at && (
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <Calendar className="h-4 w-4 flex-shrink-0" />
+            <span>{formatDate(order.created_at)}</span>
+          </div>
+        )}
       </div>
 
       <Button

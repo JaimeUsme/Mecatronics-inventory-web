@@ -4,26 +4,28 @@ import { useSearchParams } from 'react-router-dom'
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/components/ui/select'
 import { DashboardLayout } from '@/shared/components/layout'
 import { useDebounce } from '@/shared/hooks'
 import { OrderCard } from '../components'
 import { OrderDetailView } from '../components/OrderDetailView'
-import { useOrders } from '../hooks'
+import { useOrders, useOrderCounts } from '../hooks'
 import type { OrderResponse } from '../types'
+import { cn } from '@/shared/utils'
 
 export function DashboardPage() {
   const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'unscheduled')
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null)
+  
+  // Estados para contadores (se obtendrán de peticiones adicionales o del API)
+  const [stats, setStats] = useState({
+    unscheduled: 0,
+    scheduled: 0,
+    success: 0,
+    failure: 0,
+  })
   
   // Debounce para la búsqueda
   const debouncedSearch = useDebounce(searchQuery, 500)
@@ -32,13 +34,6 @@ export function DashboardPage() {
   const currentPage = useMemo(() => {
     const page = searchParams.get('page')
     return page ? parseInt(page, 10) : 1
-  }, [searchParams])
-  
-  // Leer employee_id de la URL
-  const employeeId = useMemo(() => {
-    const id = searchParams.get('employee_id') || undefined
-    console.log('📋 Employee ID desde URL:', id)
-    return id
   }, [searchParams])
   
   const [perPage] = useState(20)
@@ -57,29 +52,50 @@ export function DashboardPage() {
     })
   }, [debouncedSearch, setSearchParams])
 
-  // Resetear a página 1 cuando cambia el filtro de estado
+  // Actualizar URL cuando cambia el filtro de estado
   useEffect(() => {
-    if (currentPage !== 1) {
-      setSearchParams((prev) => {
-        const newParams = new URLSearchParams(prev)
-        newParams.set('page', '1')
-        return newParams
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter])
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev)
+      if (statusFilter && statusFilter !== 'all') {
+        newParams.set('status', statusFilter)
+      } else {
+        newParams.delete('status')
+      }
+      newParams.set('page', '1')
+      return newParams
+    })
+  }, [statusFilter, setSearchParams])
 
   // Determinar filtros booleanos basados en statusFilter
-  const inProgress = statusFilter === 'in_progress' ? true : undefined
-  const scheduled = statusFilter === 'scheduled' ? true : undefined
+  const unscheduled = statusFilter === 'unscheduled' ? true : undefined
+  const scheduledState = statusFilter === 'scheduled' ? true : undefined
+  const success = statusFilter === 'success' ? true : undefined
+  const failure = statusFilter === 'failure' ? true : undefined
 
   const { data, isLoading, isError, error } = useOrders({
     page: currentPage,
     per_page: perPage,
-    in_progress: inProgress,
-    scheduled: scheduled,
-    employee_id: employeeId,
+    search: debouncedSearch || undefined,
+    unscheduled: unscheduled,
+    scheduled_state: scheduledState,
+    success: success,
+    failure: failure,
   })
+
+  // Obtener contadores usando el endpoint dedicado (con search si existe)
+  const { data: countsData } = useOrderCounts(debouncedSearch || undefined)
+
+  // Actualizar estadísticas cuando cambian los datos
+  useEffect(() => {
+    if (countsData) {
+      setStats({
+        unscheduled: countsData.unscheduled || 0,
+        scheduled: countsData.scheduled || 0,
+        success: countsData.success || 0,
+        failure: countsData.failed || 0,
+      })
+    }
+  }, [countsData])
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
@@ -96,7 +112,7 @@ export function DashboardPage() {
   const handleNextPage = () => {
     if (data?.pagination) {
       const totalPages = Math.ceil(
-        data.pagination.total / Number(data.pagination.per_page)
+        (data.pagination.total || 0) / Number(data.pagination.per_page)
       )
       if (currentPage < totalPages) {
         const newPage = currentPage + 1
@@ -137,9 +153,9 @@ export function DashboardPage() {
           </p>
         </div>
 
-        {/* Búsqueda y filtros */}
-        <div className="flex gap-4 mb-8">
-          <div className="flex-1 relative">
+        {/* Búsqueda */}
+        <div className="mb-6">
+          <div className="flex-1 relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               type="text"
@@ -149,17 +165,88 @@ export function DashboardPage() {
               className="pl-10"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder={t('dashboard.allStatuses')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('dashboard.allStatuses')}</SelectItem>
-              <SelectItem value="pending">{t('dashboard.pending')}</SelectItem>
-              <SelectItem value="in_progress">{t('dashboard.inProgress')}</SelectItem>
-              <SelectItem value="scheduled">{t('dashboard.scheduled')}</SelectItem>
-            </SelectContent>
-          </Select>
+        </div>
+
+        {/* Pestañas de estado */}
+        <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setStatusFilter('unscheduled')}
+              className={cn(
+                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                statusFilter === 'unscheduled'
+                  ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              )}
+            >
+              {t('dashboard.unscheduled')}
+              <span className={cn(
+                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                statusFilter === 'unscheduled'
+                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+              )}>
+                {stats.unscheduled}
+              </span>
+            </button>
+            <button
+              onClick={() => setStatusFilter('scheduled')}
+              className={cn(
+                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                statusFilter === 'scheduled'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              )}
+            >
+              {t('dashboard.scheduled')}
+              <span className={cn(
+                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                statusFilter === 'scheduled'
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+              )}>
+                {stats.scheduled}
+              </span>
+            </button>
+            <button
+              onClick={() => setStatusFilter('success')}
+              className={cn(
+                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                statusFilter === 'success'
+                  ? 'border-green-500 text-green-600 dark:text-green-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              )}
+            >
+              {t('dashboard.success')}
+              <span className={cn(
+                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                statusFilter === 'success'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+              )}>
+                {stats.success}
+              </span>
+            </button>
+            <button
+              onClick={() => setStatusFilter('failure')}
+              className={cn(
+                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                statusFilter === 'failure'
+                  ? 'border-red-500 text-red-600 dark:text-red-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              )}
+            >
+              {t('dashboard.failure')}
+              <span className={cn(
+                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                statusFilter === 'failure'
+                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+              )}>
+                {stats.failure}
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Estado de carga */}
@@ -200,7 +287,7 @@ export function DashboardPage() {
             {/* Paginación */}
             {data?.pagination && (() => {
               const totalPages = Math.ceil(
-                data.pagination.total / Number(data.pagination.per_page)
+                (data.pagination.total || 0) / Number(data.pagination.per_page)
               )
               const currentPageNum = Number(data.pagination.page)
               
@@ -212,7 +299,7 @@ export function DashboardPage() {
                     {t('dashboard.paginationInfo', {
                       page: currentPageNum,
                       totalPages: totalPages,
-                      total: data.pagination.total,
+                      total: data.pagination.total || 0,
                     })}
                   </div>
                   <div className="flex gap-2">

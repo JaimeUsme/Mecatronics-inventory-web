@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
-import { Package, Building2, Eye, EyeOff } from 'lucide-react'
+import { Package, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import {
@@ -12,22 +12,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/components/ui/select'
 import { LanguageSelector, ThemeToggle } from '@/shared/components/layout'
 import { createLoginSchema, type LoginFormData } from '../validators'
-import { useLogin, useInternalLogin } from '../hooks'
+import { useInternalLogin } from '../hooks'
 
 export function LoginPage() {
   const { t } = useTranslation()
-  const [company, setCompany] = useState<'wispro' | 'mecatronics'>('wispro')
   const [showPassword, setShowPassword] = useState(false)
-  const loginMutation = useLogin()
   const internalLoginMutation = useInternalLogin()
   const {
     register,
@@ -43,11 +34,7 @@ export function LoginPage() {
       password: data.password,
     }
 
-    if (company === 'mecatronics') {
-      internalLoginMutation.mutate(payload)
-    } else {
-      loginMutation.mutate(payload)
-    }
+    internalLoginMutation.mutate(payload)
   }
 
   return (
@@ -79,35 +66,6 @@ export function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Selector Empresa */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="company"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  {t('login.company')}
-                </label>
-                <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-                    <Building2 className="h-4 w-4" />
-                  </div>
-                  <Select
-                    value={company}
-                    onValueChange={(value) =>
-                      setCompany(value as 'wispro' | 'mecatronics')
-                    }
-                  >
-                    <SelectTrigger className="pl-9 bg-gray-50 dark:bg-gray-900/40">
-                      <SelectValue placeholder="Wispro" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="wispro">Wispro</SelectItem>
-                      <SelectItem value="mecatronics">Mecatronics</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
               {/* Campo Email */}
               <div className="space-y-2">
                 <label
@@ -165,14 +123,12 @@ export function LoginPage() {
               </div>
 
               {/* Mensaje de error */}
-              {(loginMutation.isError || internalLoginMutation.isError) && (
+              {internalLoginMutation.isError && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                   <p className="text-sm text-red-600 dark:text-red-400">
-                    {loginMutation.error instanceof Error
-                      ? loginMutation.error.message
-                      : internalLoginMutation.error instanceof Error
-                        ? internalLoginMutation.error.message
-                        : t('login.error')}
+                    {internalLoginMutation.error instanceof Error
+                      ? internalLoginMutation.error.message
+                      : t('login.error')}
                   </p>
                 </div>
               )}
@@ -181,9 +137,9 @@ export function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10"
-                disabled={loginMutation.isPending || internalLoginMutation.isPending}
+                disabled={internalLoginMutation.isPending}
               >
-                {loginMutation.isPending || internalLoginMutation.isPending
+                {internalLoginMutation.isPending
                   ? t('login.submitting')
                   : t('login.submit')}
               </Button>

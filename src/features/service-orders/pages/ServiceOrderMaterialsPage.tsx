@@ -105,7 +105,7 @@ export function ServiceOrderMaterialsPage() {
   const handleNextPage = () => {
     if (ordersData?.pagination) {
       const totalPages = Math.ceil(
-        ordersData.pagination.total / Number(ordersData.pagination.per_page)
+        (ordersData.pagination.total || 0) / Number(ordersData.pagination.per_page)
       )
       if (currentPage < totalPages) {
         setCurrentPage((prev) => prev + 1)
@@ -288,7 +288,7 @@ export function ServiceOrderMaterialsPage() {
             {/* Paginación */}
             {ordersData?.pagination && (() => {
               const totalPages = Math.ceil(
-                ordersData.pagination.total / Number(ordersData.pagination.per_page)
+                (ordersData.pagination.total || 0) / Number(ordersData.pagination.per_page)
               )
               const currentPageNum = Number(ordersData.pagination.page) || currentPage
               

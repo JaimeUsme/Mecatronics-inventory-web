@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Search, Pencil, Trash2, X } from 'lucide-react'
 import { DashboardLayout } from '@/shared/components/layout'
 import { Input } from '@/shared/components/ui/input'
@@ -14,6 +15,8 @@ import {
 import { Card } from '@/shared/components/ui/card'
 import { useLocations, useDeleteLocation } from '../hooks'
 import { CreateLocationModal } from '../components/CreateLocationModal'
+import { EditLocationModal } from '../components/EditLocationModal'
+import type { LocationResponse as ApiLocationResponse } from '../types'
 
 type LocationType = 'warehouse' | 'technician' | 'crew'
 
@@ -39,10 +42,12 @@ function formatDate(dateString: string, locale: string) {
 
 export function LocationsPage() {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | LocationType>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [locationToEdit, setLocationToEdit] = useState<ApiLocationResponse | null>(null)
   const [locationToDelete, setLocationToDelete] = useState<Location | null>(null)
 
   // Determinar los parámetros para el query
@@ -297,6 +302,9 @@ export function LocationsPage() {
                             <Button
                               variant="outline"
                               className="h-8 px-3 border-gray-300 dark:border-gray-700"
+                              onClick={() => {
+                                navigate(`/dashboard/inventory/stock?locationId=${loc.id}`)
+                              }}
                             >
                               {t('locations.viewInventory')}
                             </Button>
@@ -304,6 +312,13 @@ export function LocationsPage() {
                               variant="outline"
                               size="icon"
                               className="h-8 w-8 border-gray-300 dark:border-gray-700"
+                              onClick={() => {
+                                // Encontrar la ubicación de la API correspondiente
+                                const apiLocation = apiLocations.find((apiLoc) => apiLoc.id === loc.id)
+                                if (apiLocation) {
+                                  setLocationToEdit(apiLocation)
+                                }
+                              }}
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -332,6 +347,12 @@ export function LocationsPage() {
           onClose={() => setIsCreateOpen(false)}
         />
 
+        <EditLocationModal
+          open={!!locationToEdit}
+          location={locationToEdit}
+          onClose={() => setLocationToEdit(null)}
+        />
+
         {/* Modal de confirmación para eliminar */}
         {locationToDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -347,7 +368,7 @@ export function LocationsPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                        {t('locations.deleteTitle') || 'Eliminar ubicación'}
+                        {t('locations.deleteTitle')}
                       </h3>
                       <button
                         type="button"
@@ -393,8 +414,8 @@ export function LocationsPage() {
                       className="min-w-[100px]"
                     >
                       {deleteLocation.isPending
-                        ? t('locations.deleting') || 'Eliminando...'
-                        : t('locations.delete') || 'Eliminar'}
+                        ? t('locations.deleting')
+                        : t('locations.delete')}
                     </Button>
                   </div>
                 </div>

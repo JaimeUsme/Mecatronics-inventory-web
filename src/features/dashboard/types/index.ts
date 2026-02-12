@@ -4,28 +4,39 @@ export interface CrewMember {
 }
 
 export interface CrewSnapshot {
-  crew_id: string
-  crew_name: string
+  crew_id: string | null
+  crew_name: string | null
   member_ids: string[]
   members: CrewMember[]
+}
+
+export interface GpsPoint {
+  full_address: string
+}
+
+export interface Ticket {
+  assigned_at: string | null
+  state: string | null
+  finalized_at: string | null
 }
 
 export interface OrderResponse {
   id: string
   sequential_id: number
-  state: string
-  employee_id?: string
+  state: string // pending, in_progress, completed, to_reschedule, closed, etc.
+  result: string // success, failure, not_set
+  description: string
+  created_at: string // ISO 8601
+  start_at: string | null // ISO 8601
+  end_at: string | null // ISO 8601
+  finalized_at: string | null // ISO 8601
+  employee_id: string
   employee_name: string
   orderable_name: string
-  full_address: string
-  created_at: string
-  assigned_at: string
-  description: string
-  due_date?: string
-  images?: string[]
-  comments?: OrderComment[]
-  action_history?: OrderAction[]
-  crew_snapshot?: CrewSnapshot
+  gps_point: GpsPoint | null
+  ticket: Ticket | null
+  crew_snapshot: CrewSnapshot | null
+  programated_at: string | null // ISO 8601 format - Para determinar si está programada
 }
 
 export interface OrderComment {
@@ -54,10 +65,16 @@ export interface OrderImage {
 export interface OrdersApiResponse {
   orders: OrderResponse[]
   pagination: {
-    page: string | number
-    per_page: string | number
-    total: number
-    total_pages?: number
+    page: number
+    per_page: number
+    total: number | undefined
+    total_pages: number | undefined
+  }
+  stats?: {
+    unscheduled?: number
+    scheduled?: number
+    success?: number
+    failure?: number
   }
 }
 
@@ -72,6 +89,20 @@ export interface GetOrdersParams {
   technicianId?: string
   fromDate?: string
   toDate?: string
+  unscheduled?: boolean
+  scheduled_state?: boolean
+  success?: boolean
+  failure?: boolean
+}
+
+export interface GetMyOrdersParams {
+  page?: number
+  per_page?: number
+  search?: string
+  unscheduled?: boolean
+  scheduled_state?: boolean
+  success?: boolean
+  failure?: boolean
 }
 
 export interface OrderMaterialUsage {
@@ -108,11 +139,11 @@ export interface OrderFeedback {
   id: string
   order_id: string
   created_at: string
-  feedback_kind_id: string
+  feedback_kind_id?: string
   creatable_id: string
   creatable_type: string
-  body: string
-  feedback_kind: FeedbackKind
+  body?: string
+  feedback_kind?: FeedbackKind
   creator?: FeedbackCreator | null
 }
 
@@ -122,5 +153,17 @@ export interface CreateFeedbackRequest {
     feedback_kind_id: string
   }
   locale?: string
+}
+
+// Nueva estructura de respuesta para feedbacks
+export interface GetOrderFeedbacksResponse {
+  feedbacks: OrderFeedback[]
+  materials: OrderFeedback[] // Los materiales vienen como feedbacks con body en JSON
+}
+
+// Nueva estructura de respuesta para imágenes
+export interface GetOrderImagesResponse {
+  images: OrderImage[]
+  sign: OrderImage | null
 }
 

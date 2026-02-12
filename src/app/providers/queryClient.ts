@@ -5,6 +5,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
+      refetchOnMount: 'always', // Por defecto, refetch si está stale
       retry: (failureCount, error: any) => {
         // No reintentar si es un error 401 (token expirado)
         if (error?.status === 401 || error?.response?.status === 401) {

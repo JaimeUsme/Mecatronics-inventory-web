@@ -1,5 +1,6 @@
 import type {
   CreateMaterialRequest,
+  UpdateMaterialRequest,
   MaterialResponse,
   GetMaterialsParams,
   MaterialsApiResponse,
@@ -10,10 +11,46 @@ const API_BASE_URL = 'http://localhost:3000'
 
 export const materialsService = {
   async createMaterial(payload: CreateMaterialRequest): Promise<MaterialResponse> {
+    // Crear FormData para multipart/form-data
+    const formData = new FormData()
+    
+    formData.append('name', payload.name)
+    formData.append('unit', payload.unit)
+    
+    if (payload.category) {
+      formData.append('category', payload.category)
+    }
+    
+    if (payload.minStock !== undefined) {
+      formData.append('minStock', payload.minStock.toString())
+    }
+    
+    if (payload.ownershipType) {
+      formData.append('ownershipType', payload.ownershipType)
+    }
+    
+    // Agregar imágenes si existen
+    if (payload.images && payload.images.length > 0) {
+      payload.images.forEach((file) => {
+        formData.append('images', file)
+      })
+    }
+
+    // Obtener headers de autenticación (sin Content-Type para que el navegador lo establezca automáticamente con el boundary)
+    const authHeaders = getAuthHeaders()
+    const headers: HeadersInit = {}
+    
+    // Copiar headers de autenticación excepto Content-Type
+    Object.entries(authHeaders).forEach(([key, value]) => {
+      if (key.toLowerCase() !== 'content-type') {
+        headers[key] = value
+      }
+    })
+
     const response = await fetch(`${API_BASE_URL}/inventory/materials`, {
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(payload),
+      headers,
+      body: formData,
       credentials: 'include',
     })
 
@@ -80,6 +117,71 @@ export const materialsService = {
     }
 
     return data as MaterialsApiResponse
+  },
+
+  async updateMaterial(
+    id: string,
+    payload: UpdateMaterialRequest
+  ): Promise<MaterialResponse> {
+    // Crear FormData para multipart/form-data
+    const formData = new FormData()
+    
+    if (payload.name) {
+      formData.append('name', payload.name)
+    }
+    
+    if (payload.unit) {
+      formData.append('unit', payload.unit)
+    }
+    
+    if (payload.category) {
+      formData.append('category', payload.category)
+    }
+    
+    if (payload.minStock !== undefined) {
+      formData.append('minStock', payload.minStock.toString())
+    }
+    
+    if (payload.ownershipType) {
+      formData.append('ownershipType', payload.ownershipType)
+    }
+    
+    // Agregar imágenes si existen
+    if (payload.images && payload.images.length > 0) {
+      payload.images.forEach((file) => {
+        formData.append('images', file)
+      })
+    }
+
+    // Obtener headers de autenticación (sin Content-Type para que el navegador lo establezca automáticamente con el boundary)
+    const authHeaders = getAuthHeaders()
+    const headers: HeadersInit = {}
+    
+    // Copiar headers de autenticación excepto Content-Type
+    Object.entries(authHeaders).forEach(([key, value]) => {
+      if (key.toLowerCase() !== 'content-type') {
+        headers[key] = value
+      }
+    })
+
+    const response = await fetch(`${API_BASE_URL}/inventory/materials/${id}`, {
+      method: 'PUT',
+      headers,
+      body: formData,
+      credentials: 'include',
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      const error: Error & { status?: number } = new Error(
+        data?.message || 'Error al actualizar material'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    return data as MaterialResponse
   },
 }
 

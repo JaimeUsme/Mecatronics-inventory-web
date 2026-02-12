@@ -68,7 +68,7 @@ export function EmployeesPage() {
   // Mapear datos de la API al formato de Employee
   const employees: Employee[] = useMemo(() => {
     if (!data?.employees) return []
-    return data.employees.map((emp) => ({
+    return data.employees.map((emp: any) => ({
       id: emp.id,
       public_id: emp.public_id,
       name: emp.name,
