@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   FileText,
@@ -19,7 +18,6 @@ import {
   Search,
   Trash2,
   Plus,
-  CalendarX,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Card } from '@/shared/components/ui/card'
@@ -34,12 +32,9 @@ import {
 } from '@/shared/components/ui/select'
 import { cn } from '@/shared/utils'
 import { useDebounce } from '@/shared/hooks'
-import type { OrderResponse, OrderMaterialUsage, OrderFeedback, OrderImage } from '../types'
-import { useOrderImages, useUploadOrderImage, useDeleteOrderImage, useOrderFeedbacks, useCreateFeedback, useRescheduleOrder } from '../hooks'
-import { SignatureModal } from './SignatureModal'
-import { ordersService } from '../services'
+import type { OrderResponse, OrderMaterialUsage, OrderImage } from '../types'
+import { useOrderImages, useUploadOrderImage, useDeleteOrderImage, useOrderFeedbacks, useCreateFeedback, useOrderMaterials, useCreateMaterial } from '../hooks'
 import { useMaterials, useConsumeMaterials } from '@/features/inventory/hooks'
-import { getAuthHeaders } from '@/shared/utils/api'
 import type { MaterialResponse } from '@/features/inventory/types'
 import { format } from 'date-fns'
 import { es, enUS } from 'date-fns/locale'
@@ -91,75 +86,29 @@ interface OrderDetailViewProps {
 
 export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
   const { t, i18n } = useTranslation()
-  const queryClient = useQueryClient()
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const { data: imagesData, isLoading: isLoadingImages } = useOrderImages(order.id)
   
   // Usar datos ya separados del backend
   const normalImages = imagesData?.images || []
-  const signatureImage = imagesData?.sign || null
-  // Para el lightbox, combinar todas las imágenes
-  const allImages = [...normalImages, ...(signatureImage ? [signatureImage] : [])]
+  // Para el lightbox, usar solo las imágenes normales
+  const allImages = normalImages
   const uploadImage = useUploadOrderImage(order.id)
   const deleteImage = useDeleteOrderImage(order.id)
   const [imageToDelete, setImageToDelete] = useState<OrderImage | null>(null)
   const { data: feedbacksData, isLoading: isLoadingFeedbacks } = useOrderFeedbacks(order.id)
+  const { data: orderMaterialsData } = useOrderMaterials(order.id)
   
-  // Usar datos ya separados del backend
-  const regularFeedbacks = feedbacksData?.feedbacks || []
-  const materialFeedbacks = feedbacksData?.materials || []
+  // Feedbacks ahora es un array directo
+  const regularFeedbacks = feedbacksData || []
   
-  // Parsear materiales de los feedbacks de materiales
-  const groupedMaterials = useMemo(() => {
-    const materialMap = new Map<string, OrderMaterialUsage>()
-
-    materialFeedbacks.forEach((feedback) => {
-      if (!feedback.body) return
-      
-      try {
-        const parsed = JSON.parse(feedback.body)
-        const materialsArray = parsed.materials || []
-        
-        materialsArray.forEach((m: any) => {
-          const existing = materialMap.get(m.materialId)
-          if (existing) {
-            // Sumar cantidades si el material ya existe
-            materialMap.set(m.materialId, {
-              ...existing,
-              quantityUsed: existing.quantityUsed + (m.quantityUsed || 0),
-              quantityDamaged: existing.quantityDamaged + (m.quantityDamaged || 0),
-            })
-          } else {
-            materialMap.set(m.materialId, {
-              id: feedback.id,
-              materialId: m.materialId,
-              materialName: m.materialName,
-              materialUnit: m.materialUnit,
-              quantityUsed: m.quantityUsed || 0,
-              quantityDamaged: m.quantityDamaged || 0,
-              createdAt: feedback.created_at,
-            })
-          }
-        })
-      } catch (e) {
-        console.error('Error parsing material feedback:', e)
-      }
-    })
-
-    return Array.from(materialMap.values())
-  }, [materialFeedbacks])
+  // Materiales vienen directamente del nuevo endpoint
+  const groupedMaterials = orderMaterialsData?.materials || []
   const createFeedback = useCreateFeedback(order.id)
+  const createMaterial = useCreateMaterial(order.id)
   const consumeMaterials = useConsumeMaterials()
-  const rescheduleOrder = useRescheduleOrder(order.id)
   const [feedbackComment, setFeedbackComment] = useState('')
   const [feedbackKindId, setFeedbackKindId] = useState<string>('')
-  const [showRescheduleModal, setShowRescheduleModal] = useState(false)
-  const [rescheduleFeedback, setRescheduleFeedback] = useState('')
-  const [showSignatureModal, setShowSignatureModal] = useState(false)
-  const [isClosingOrder, setIsClosingOrder] = useState(false)
-
-  // ID del tipo de feedback para materiales gastados
-  const MATERIAL_FEEDBACK_KIND_ID = 'bd40d1ad-5b89-42a4-a70f-2ec8b2392e16'
 
   // Tipos de feedback hardcodeados
   const feedbackKinds = [
@@ -293,14 +242,6 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                 </h2>
               </div>
               <div className="flex items-center gap-3">
-                <Button
-                  onClick={() => setShowRescheduleModal(true)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <CalendarX className="h-4 w-4" />
-                  {t('orderDetail.reschedule') || 'Reprogramar'}
-                </Button>
                 <span
                   className={cn(
                     'px-3 py-1 rounded-md text-sm font-medium',
@@ -388,26 +329,6 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
             </div>
           </Card>
 
-          {/* Signature Section */}
-          {signatureImage && (
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {t('orderDetail.userSignature')}
-                </h3>
-              </div>
-              <div className="flex justify-center">
-                <div className="relative max-w-2xl w-full">
-                  <img
-                    src={signatureImage.original}
-                    alt={t('orderDetail.userSignature')}
-                    className="w-full h-auto border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 p-4"
-                  />
-                </div>
-              </div>
-            </Card>
-          )}
 
           {/* Images Section */}
           <Card className="p-6">
@@ -589,22 +510,22 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
               <div className="space-y-2">
                 {groupedMaterials.map((material: OrderMaterialUsage, index: number) => (
                   <div
-                    key={material.materialId || index}
+                    key={material.id || index}
                     className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                   >
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {material.materialName}
+                        {material.name}
                       </p>
                       <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600 dark:text-gray-400">
                         {material.quantityUsed > 0 && (
                           <span>
-                            {t('orderDetail.used')}: {material.quantityUsed} {material.materialUnit}
+                            {t('orderDetail.used')}: {material.quantityUsed} {material.unit}
                           </span>
                         )}
                         {material.quantityDamaged > 0 && (
                           <span>
-                            {t('orderDetail.damaged')}: {material.quantityDamaged} {material.materialUnit}
+                            {t('orderDetail.damaged')}: {material.quantityDamaged} {material.unit}
                           </span>
                         )}
                       </div>
@@ -826,15 +747,15 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                       onClick={() => {
                         if (selectedMaterial && (quantityUsed || quantityDamaged)) {
                           const newUsage: OrderMaterialUsage = {
-                            materialId: selectedMaterial.id,
-                            materialName: selectedMaterial.name,
-                            materialUnit: selectedMaterial.unit,
+                            id: selectedMaterial.id,
+                            name: selectedMaterial.name,
+                            unit: selectedMaterial.unit,
                             quantityUsed: parseFloat(quantityUsed) || 0,
                             quantityDamaged: parseFloat(quantityDamaged) || 0,
                           }
                           // Verificar si el material ya existe en la lista
                           const existingIndex = materialUsageList.findIndex(
-                            (u) => u.materialId === selectedMaterial.id
+                            (u) => u.id === selectedMaterial.id
                           )
                           if (existingIndex >= 0) {
                             // Actualizar si ya existe
@@ -876,17 +797,17 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                   >
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {usage.materialName}
+                        {usage.name}
                       </p>
                       <div className="flex gap-4 mt-1 text-xs text-gray-600 dark:text-gray-400">
                         {usage.quantityUsed > 0 && (
                           <span>
-                            {t('orderDetail.used')}: {usage.quantityUsed} {usage.materialUnit}
+                            {t('orderDetail.used')}: {usage.quantityUsed} {usage.unit}
                           </span>
                         )}
                         {usage.quantityDamaged > 0 && (
                           <span>
-                            {t('orderDetail.damaged')}: {usage.quantityDamaged} {usage.materialUnit}
+                            {t('orderDetail.damaged')}: {usage.quantityDamaged} {usage.unit}
                           </span>
                         )}
                       </div>
@@ -911,52 +832,21 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
 
                       setIsConfirmingMaterials(true)
                       try {
-                        // Crear el body en formato JSON que el backend pueda reconocer
-                        const materialFeedbackBody = JSON.stringify({
+                        // Guardar la lista de materiales antes de limpiar (para el consumo)
+                        const materialsToConsume = [...materialUsageList]
+
+                        // Usar el nuevo endpoint de materiales
+                        await createMaterial.mutateAsync({
                           materials: materialUsageList.map((usage) => ({
-                            materialId: usage.materialId,
-                            materialName: usage.materialName,
-                            materialUnit: usage.materialUnit,
+                            id: usage.id,
+                            name: usage.name,
+                            unit: usage.unit,
                             quantityUsed: usage.quantityUsed,
                             quantityDamaged: usage.quantityDamaged,
                           })),
                         })
 
-                        // Usar el endpoint de crear feedback con el body especial
-                        // Crear una nueva instancia de la mutación para no afectar el estado de createFeedback
-                        const feedbackResponse = await fetch(`http://localhost:3000/orders/${order.id}/feedbacks`, {
-                          method: 'POST',
-                          headers: {
-                            ...getAuthHeaders(),
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            feedback: {
-                              body: materialFeedbackBody,
-                              feedback_kind_id: MATERIAL_FEEDBACK_KIND_ID,
-                            },
-                            locale: i18n.language || 'es',
-                          }),
-                          credentials: 'include',
-                        })
-
-                        if (!feedbackResponse.ok) {
-                          const errorData = await feedbackResponse.json().catch(() => ({
-                            message: 'Error al crear feedback de materiales',
-                          }))
-                          throw new Error(errorData.message || 'Error al crear feedback de materiales')
-                        }
-
-                        // Obtener la lista actualizada de feedbacks de la respuesta
-                        const updatedFeedbacks: OrderFeedback[] = await feedbackResponse.json()
-
-                        // Actualizar el cache inmediatamente con la respuesta del servidor
-                        queryClient.setQueryData(['order-feedbacks', order.id], updatedFeedbacks)
-
-                        // Guardar la lista de materiales antes de limpiar (para el consumo)
-                        const materialsToConsume = [...materialUsageList]
-
-                        // Limpiar todo el formulario INMEDIATAMENTE después de crear el feedback
+                        // Limpiar todo el formulario INMEDIATAMENTE después de crear los materiales
                         // Esto hace que la UI se actualice de inmediato
                         setMaterialUsageList([])
                         setSelectedMaterial(null)
@@ -965,12 +855,12 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                         setMaterialSearch('')
                         setIsMaterialDropdownOpen(false)
 
-                        // Solo si el feedback se creó correctamente, consumir los materiales
+                        // Solo si los materiales se crearon correctamente, consumir los materiales
                         await consumeMaterials.mutateAsync({
                           materials: materialsToConsume.map((usage) => ({
-                            materialId: usage.materialId,
-                            materialName: usage.materialName,
-                            materialUnit: usage.materialUnit,
+                            materialId: usage.id,
+                            materialName: usage.name,
+                            materialUnit: usage.unit,
                             quantityUsed: usage.quantityUsed,
                             quantityDamaged: usage.quantityDamaged,
                           })),
@@ -984,9 +874,9 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
                       }
                     }}
                     className="w-full bg-green-600 hover:bg-green-700 text-white"
-                    disabled={isConfirmingMaterials || consumeMaterials.isPending}
+                    disabled={isConfirmingMaterials || consumeMaterials.isPending || createMaterial.isPending}
                   >
-                    {isConfirmingMaterials || consumeMaterials.isPending ? (
+                    {isConfirmingMaterials || consumeMaterials.isPending || createMaterial.isPending ? (
                       <>
                         <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         {t('orderDetail.confirmingMaterials')}
@@ -1011,60 +901,9 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Close Order Button */}
-          {order.state !== 'completed' && order.state !== 'cancelled' && order.state !== 'closed' && (
-            <Card className="p-6">
-              <Button
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => setShowSignatureModal(true)}
-                disabled={isClosingOrder}
-              >
-                {isClosingOrder ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    {t('orderDetail.closingOrder')}
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-5 w-5 mr-2" />
-                    {t('orderDetail.closeOrder')}
-                  </>
-                )}
-              </Button>
-            </Card>
-          )}
-
           {/* Action History - Removed as it's not in the new API structure */}
         </div>
       </div>
-
-      {/* Modal de firma digital */}
-      <SignatureModal
-        isOpen={showSignatureModal}
-        onClose={() => setShowSignatureModal(false)}
-        onConfirm={async (signatureDataUrl) => {
-          try {
-            setIsClosingOrder(true)
-            // Por defecto, cerrar como exitosa. Si necesitas permitir elegir, puedes agregar un selector
-            await ordersService.closeOrder(order.id, signatureDataUrl, 'success')
-            // Invalidar las queries para refrescar los datos
-            queryClient.invalidateQueries({ queryKey: ['orders'] })
-            queryClient.invalidateQueries({ queryKey: ['myOrders'] })
-            queryClient.invalidateQueries({ queryKey: ['order-details', order.id] })
-            queryClient.invalidateQueries({ queryKey: ['orderCounts'] })
-            queryClient.invalidateQueries({ queryKey: ['myOrderCounts'] })
-            setShowSignatureModal(false)
-            // Opcional: mostrar mensaje de éxito o redirigir
-          } catch (error) {
-            console.error('Error al cerrar la orden:', error)
-            // El error se manejará con toast si está configurado
-          } finally {
-            setIsClosingOrder(false)
-          }
-        }}
-        isLoading={isClosingOrder}
-        orderNumber={`ORD-${String(order.sequential_id).padStart(3, '0')}`}
-      />
 
       {/* Modal de confirmación para eliminar imagen */}
       {imageToDelete && (
@@ -1159,72 +998,6 @@ export function OrderDetailView({ order, onBack }: OrderDetailViewProps) {
         </div>
       )}
 
-      {/* Reschedule Modal */}
-      {showRescheduleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <Card className="w-full max-w-md mx-4 rounded-xl shadow-2xl">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                  <CalendarX className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  {t('orderDetail.rescheduleOrder') || 'Reprogramar Orden'}
-                </h3>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {t('orderDetail.rescheduleMessage') || 'Por favor, proporciona un motivo para reprogramar esta orden.'}
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                    {t('orderDetail.feedback') || 'Motivo'}
-                  </label>
-                  <Textarea
-                    placeholder={t('orderDetail.reschedulePlaceholder') || 'Ej: Usuario no está en la casa'}
-                    rows={4}
-                    className="resize-none"
-                    value={rescheduleFeedback}
-                    onChange={(e) => setRescheduleFeedback(e.target.value)}
-                  />
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowRescheduleModal(false)
-                      setRescheduleFeedback('')
-                    }}
-                    disabled={rescheduleOrder.isPending}
-                  >
-                    {t('orderDetail.cancel') || 'Cancelar'}
-                  </Button>
-                  <Button
-                    onClick={async () => {
-                      try {
-                        await rescheduleOrder.mutateAsync(rescheduleFeedback.trim())
-                        setShowRescheduleModal(false)
-                        setRescheduleFeedback('')
-                        // Mostrar mensaje de éxito (podrías usar un toast aquí)
-                        alert(t('orderDetail.rescheduleSuccess') || 'Orden reprogramada exitosamente')
-                      } catch (error) {
-                        console.error('Error al reprogramar orden:', error)
-                        alert(t('orderDetail.rescheduleError') || 'Error al reprogramar la orden')
-                      }
-                    }}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                    disabled={!rescheduleFeedback.trim() || rescheduleOrder.isPending}
-                  >
-                    {rescheduleOrder.isPending
-                      ? (t('orderDetail.processing') || 'Procesando...')
-                      : (t('orderDetail.confirmReschedule') || 'Confirmar Reprogramación')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
     </div>
   )
 }

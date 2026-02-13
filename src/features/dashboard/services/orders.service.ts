@@ -1,4 +1,4 @@
-import type { OrdersApiResponse, GetOrdersParams, GetMyOrdersParams, CreateFeedbackRequest, GetOrderImagesResponse, GetOrderFeedbacksResponse } from '../types'
+import type { OrdersApiResponse, GetOrdersParams, GetMyOrdersParams, CreateFeedbackRequest, GetOrderImagesResponse, GetOrderFeedbacksResponse, GetOrderMaterialsResponse, CreateOrderMaterialsRequest } from '../types'
 import { getAuthHeaders } from '@/shared/utils/api'
 import { checkAuthError } from '@/shared/utils/checkAuthError'
 
@@ -278,6 +278,54 @@ export const ordersService = {
     return response.json()
   },
 
+  async getOrderMaterials(orderId: string): Promise<GetOrderMaterialsResponse> {
+    const response = await fetch(`${API_BASE_URL}/orders/${orderId}/materials`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al obtener los materiales de la orden',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al obtener los materiales de la orden'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    return response.json()
+  },
+
+  async createOrderMaterials(orderId: string, payload: CreateOrderMaterialsRequest): Promise<GetOrderMaterialsResponse> {
+    const response = await fetch(`${API_BASE_URL}/orders/${orderId}/materials`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      checkAuthError(response)
+      const errorData = await response.json().catch(() => ({
+        message: 'Error al crear los materiales',
+      }))
+      const error: Error & { status?: number } = new Error(
+        errorData.message || 'Error al crear los materiales'
+      )
+      error.status = response.status
+      throw error
+    }
+
+    return response.json()
+  },
+
   async deleteOrderImage(orderId: string, imageId: string): Promise<GetOrderImagesResponse> {
     const response = await fetch(`${API_BASE_URL}/orders/${orderId}/images/${imageId}`, {
       method: 'DELETE',
@@ -372,107 +420,6 @@ export const ordersService = {
     }
 
     return response.json()
-  },
-
-  async rescheduleOrder(orderId: string, feedbackBody: string): Promise<void> {
-    const url = `${API_BASE_URL}/orders/${orderId}/reschedule`
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        feedback_body: feedbackBody,
-      }),
-    })
-
-    if (!response.ok) {
-      checkAuthError(response)
-      const errorData = await response.json().catch(() => ({
-        message: 'Error al reprogramar la orden',
-      }))
-      const error: Error & { status?: number } = new Error(
-        errorData.message || 'Error al reprogramar la orden'
-      )
-      error.status = response.status
-      throw error
-    }
-  },
-
-  async closeOrder(orderId: string, signatureDataUrl: string, result: 'success' | 'failure'): Promise<void> {
-    // Convertir la imagen base64 a Blob
-    const base64Data = signatureDataUrl.split(',')[1]
-    const byteCharacters = atob(base64Data)
-    const byteNumbers = new Array(byteCharacters.length)
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i)
-    }
-    const byteArray = new Uint8Array(byteNumbers)
-    const blob = new Blob([byteArray], { type: 'image/png' })
-
-    // Crear un File con nombre especial para reconocer la firma
-    const signatureFile = new File([blob], `sign-${orderId}.png`, { type: 'image/png' })
-
-    // Subir la firma como imagen usando el endpoint de imágenes
-    const formData = new FormData()
-    formData.append('file[]', signatureFile)
-
-    const authHeaders = getAuthHeaders()
-    const headers: Record<string, string> = {}
-    const authHeaderValue = Array.isArray(authHeaders)
-      ? authHeaders.find(([key]) => key.toLowerCase() === 'authorization')?.[1]
-      : (authHeaders as Record<string, string>)['Authorization']
-    
-    if (authHeaderValue) {
-      headers['Authorization'] = authHeaderValue
-    }
-
-    const uploadResponse = await fetch(`${API_BASE_URL}/orders/${orderId}/images`, {
-      method: 'POST',
-      headers,
-      body: formData,
-      credentials: 'include',
-    })
-
-    if (!uploadResponse.ok && uploadResponse.status !== 201) {
-      checkAuthError(uploadResponse)
-      const errorData = await uploadResponse.json().catch(() => ({
-        message: 'Error al subir la firma',
-      }))
-      const error: Error & { status?: number } = new Error(
-        errorData.message || 'Error al subir la firma'
-      )
-      error.status = uploadResponse.status
-      throw error
-    }
-
-    // Llamar al endpoint de cerrar orden usando PATCH
-    const response = await fetch(`${API_BASE_URL}/orders/${orderId}/close`, {
-      method: 'PATCH',
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        result,
-      }),
-    })
-
-    if (!response.ok) {
-      checkAuthError(response)
-      const errorData = await response.json().catch(() => ({
-        message: 'Error al cerrar la orden',
-      }))
-      const error: Error & { status?: number } = new Error(
-        errorData.message || 'Error al cerrar la orden'
-      )
-      error.status = response.status
-      throw error
-    }
   },
 }
 

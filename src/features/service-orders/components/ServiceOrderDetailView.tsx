@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft,
@@ -9,7 +8,7 @@ import {
 } from 'lucide-react'
 import { Card } from '@/shared/components/ui/card'
 import type { OrderResponse, OrderMaterialUsage } from '@/features/dashboard/types'
-import { useOrderFeedbacks } from '@/features/dashboard/hooks'
+import { useOrderMaterials } from '@/features/dashboard/hooks'
 
 
 interface ServiceOrderDetailViewProps {
@@ -19,50 +18,10 @@ interface ServiceOrderDetailViewProps {
 
 export function ServiceOrderDetailView({ order, onBack }: ServiceOrderDetailViewProps) {
   const { t } = useTranslation()
-  const { data: feedbacksData } = useOrderFeedbacks(order.id)
+  const { data: materialsData } = useOrderMaterials(order.id)
 
-  // Usar materiales directamente del backend (ya separados)
-  const materialFeedbacks = feedbacksData?.materials || []
-
-  // Agrupar materiales de todos los feedbacks de material
-  const groupedMaterials = useMemo(() => {
-    const materialMap = new Map<string, OrderMaterialUsage>()
-
-    materialFeedbacks.forEach((feedback) => {
-      if (!feedback.body) return
-      
-      try {
-        const parsed = JSON.parse(feedback.body)
-        const materialsArray = parsed.materials || []
-        
-        materialsArray.forEach((m: any) => {
-          const existing = materialMap.get(m.materialId)
-          if (existing) {
-            // Sumar cantidades si el material ya existe
-            materialMap.set(m.materialId, {
-              ...existing,
-              quantityUsed: existing.quantityUsed + (m.quantityUsed || 0),
-              quantityDamaged: existing.quantityDamaged + (m.quantityDamaged || 0),
-            })
-          } else {
-            materialMap.set(m.materialId, {
-              id: feedback.id,
-              materialId: m.materialId,
-              materialName: m.materialName,
-              materialUnit: m.materialUnit,
-              quantityUsed: m.quantityUsed || 0,
-              quantityDamaged: m.quantityDamaged || 0,
-              createdAt: feedback.created_at,
-            })
-          }
-        })
-      } catch (e) {
-        console.error('Error parsing material feedback:', e)
-      }
-    })
-
-    return Array.from(materialMap.values())
-  }, [materialFeedbacks])
+  // Materiales vienen directamente del nuevo endpoint
+  const groupedMaterials = materialsData?.materials || []
 
   return (
     <div className="w-full">
@@ -152,28 +111,28 @@ export function ServiceOrderDetailView({ order, onBack }: ServiceOrderDetailView
           {groupedMaterials.length > 0 ? (
             <div className="space-y-2">
               {groupedMaterials.map((material: OrderMaterialUsage, index: number) => (
-                <div
-                  key={material.materialId || index}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                >
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {material.materialName}
-                    </p>
-                    <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600 dark:text-gray-400">
-                      {material.quantityUsed > 0 && (
-                        <span>
-                          {t('orderDetail.used')}: {material.quantityUsed} {material.materialUnit}
-                        </span>
-                      )}
-                      {material.quantityDamaged > 0 && (
-                        <span>
-                          {t('orderDetail.damaged')}: {material.quantityDamaged} {material.materialUnit}
-                        </span>
-                      )}
+                  <div
+                    key={material.id || index}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {material.name}
+                      </p>
+                      <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600 dark:text-gray-400">
+                        {material.quantityUsed > 0 && (
+                          <span>
+                            {t('orderDetail.used')}: {material.quantityUsed} {material.unit}
+                          </span>
+                        )}
+                        {material.quantityDamaged > 0 && (
+                          <span>
+                            {t('orderDetail.damaged')}: {material.quantityDamaged} {material.unit}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
               ))}
             </div>
           ) : (

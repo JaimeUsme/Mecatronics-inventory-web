@@ -106,13 +106,11 @@ export interface GetMyOrdersParams {
 }
 
 export interface OrderMaterialUsage {
-  id?: string
-  materialId: string
-  materialName: string
-  materialUnit: string
+  id: string
+  name: string
+  unit: string
   quantityUsed: number
   quantityDamaged: number
-  createdAt?: string
 }
 
 export interface CreateOrderMaterialUsageRequest {
@@ -155,10 +153,24 @@ export interface CreateFeedbackRequest {
   locale?: string
 }
 
-// Nueva estructura de respuesta para feedbacks
-export interface GetOrderFeedbacksResponse {
-  feedbacks: OrderFeedback[]
-  materials: OrderFeedback[] // Los materiales vienen como feedbacks con body en JSON
+// Estructura de respuesta para feedbacks (ahora es un array directo)
+export type GetOrderFeedbacksResponse = OrderFeedback[]
+
+// Estructura de respuesta para materiales
+export interface GetOrderMaterialsResponse {
+  materials: OrderMaterialUsage[]
+}
+
+// Request para crear materiales
+export interface CreateOrderMaterialsRequest {
+  materials: Array<{
+    id: string
+    name: string
+    quantityUsed: number
+    quantityDamaged: number
+    unit: string
+  }>
+  locale?: string
 }
 
 // Nueva estructura de respuesta para imágenes
