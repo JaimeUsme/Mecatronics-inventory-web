@@ -1,48 +1,50 @@
-import { getAuthHeaders } from '@/shared/utils/api'
+import { getAuthHeaders } from "@/shared/utils/api";
 
-const API_BASE_URL = 'http://localhost:3000'
+import { API_BASE_URL } from '@/shared/constants'
 
 export interface ConsumeMaterial {
-  materialId: string
-  materialName: string
-  materialUnit: string
-  quantityUsed: number
-  quantityDamaged: number
+  materialId: string;
+  materialName: string;
+  materialUnit: string;
+  quantityUsed: number;
+  quantityDamaged: number;
 }
 
 export interface ConsumeMaterialsRequest {
-  materials: ConsumeMaterial[]
-  serviceOrderId: string
+  materials: ConsumeMaterial[];
+  serviceOrderId: string;
 }
 
 export interface ConsumeMaterialsResponse {
-  success: boolean
-  message?: string
+  success: boolean;
+  message?: string;
 }
 
 export const consumeService = {
   async consumeMaterials(
-    payload: ConsumeMaterialsRequest
+    payload: ConsumeMaterialsRequest,
   ): Promise<ConsumeMaterialsResponse> {
-    const response = await fetch(`${API_BASE_URL}/inventory/consume-materials`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(payload),
-      credentials: 'include',
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/inventory/consume-materials`,
+      {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+        credentials: "include",
+      },
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({
-        message: 'Error al consumir materiales',
-      }))
+        message: "Error al consumir materiales",
+      }));
       const error: Error & { status?: number } = new Error(
-        errorData.message || 'Error al consumir materiales'
-      )
-      error.status = response.status
-      throw error
+        errorData.message || "Error al consumir materiales",
+      );
+      error.status = response.status;
+      throw error;
     }
 
-    return response.json()
+    return response.json();
   },
-}
-
+};

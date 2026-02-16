@@ -1,8 +1,7 @@
 import type { OrdersApiResponse, GetOrdersParams, GetMyOrdersParams, CreateFeedbackRequest, GetOrderImagesResponse, GetOrderFeedbacksResponse, GetOrderMaterialsResponse, CreateOrderMaterialsRequest } from '../types'
 import { getAuthHeaders } from '@/shared/utils/api'
 import { checkAuthError } from '@/shared/utils/checkAuthError'
-
-const API_BASE_URL = 'http://localhost:3000'
+import { API_BASE_URL } from '@/shared/constants'
 
 export const ordersService = {
   async getOrders(params: GetOrdersParams = {}): Promise<OrdersApiResponse> {

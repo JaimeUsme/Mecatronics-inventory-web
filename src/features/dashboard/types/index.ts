@@ -178,4 +178,3 @@ export interface GetOrderImagesResponse {
   images: OrderImage[]
   sign: OrderImage | null
 }
-

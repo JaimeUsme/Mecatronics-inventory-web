@@ -10,8 +10,7 @@ import type {
 } from '../types'
 import { getAuthHeaders } from '@/shared/utils/api'
 import { checkAuthError } from '@/shared/utils/checkAuthError'
-
-const API_BASE_URL = 'http://localhost:3000'
+import { API_BASE_URL } from '@/shared/constants'
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {

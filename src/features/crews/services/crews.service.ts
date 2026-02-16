@@ -5,206 +5,204 @@ import type {
   UpdateCrewRequest,
   AddCrewMemberRequest,
   CrewMember,
-} from '../types'
+} from "../types";
 import type {
   ReconfigureCrewsRequest,
   ReconfigureCrewsResponse,
   ReconfigureCrewsPreviewResponse,
-} from '../types/reconfigure.types'
-import { getAuthHeaders } from '@/shared/utils/api'
+} from "../types/reconfigure.types";
+import { getAuthHeaders } from "@/shared/utils/api";
 
-const API_BASE_URL = 'http://localhost:3000'
+import { API_BASE_URL } from '@/shared/constants'
 
 export const crewsService = {
   async getCrews(params: GetCrewsParams = {}): Promise<CrewResponse[]> {
-    const queryParams = new URLSearchParams()
+    const queryParams = new URLSearchParams();
 
-    if (typeof params.active === 'boolean') {
-      queryParams.append('active', String(params.active))
+    if (typeof params.active === "boolean") {
+      queryParams.append("active", String(params.active));
     }
 
     if (params.search) {
-      queryParams.append('search', params.search)
+      queryParams.append("search", params.search);
     }
 
     const url = `${API_BASE_URL}/crews${
-      queryParams.toString() ? `?${queryParams.toString()}` : ''
-    }`
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: getAuthHeaders(),
-      credentials: 'include',
-    })
+      credentials: "include",
+    });
 
-    const data = await response.json().catch(() => null)
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al obtener cuadrillas'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al obtener cuadrillas",
+      );
+      error.status = response.status;
+      throw error;
     }
 
-    return (data ?? []) as CrewResponse[]
+    return (data ?? []) as CrewResponse[];
   },
 
   async createCrew(payload: CreateCrewRequest): Promise<CrewResponse> {
     const response = await fetch(`${API_BASE_URL}/crews`, {
-      method: 'POST',
+      method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
-      credentials: 'include',
-    })
+      credentials: "include",
+    });
 
-    const data = await response.json().catch(() => null)
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al crear cuadrilla'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al crear cuadrilla",
+      );
+      error.status = response.status;
+      throw error;
     }
 
-    return data as CrewResponse
+    return data as CrewResponse;
   },
 
   async updateCrew(
     crewId: string,
-    payload: UpdateCrewRequest
+    payload: UpdateCrewRequest,
   ): Promise<CrewResponse> {
     const response = await fetch(`${API_BASE_URL}/crews/${crewId}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
-      credentials: 'include',
-    })
+      credentials: "include",
+    });
 
-    const data = await response.json().catch(() => null)
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al actualizar cuadrilla'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al actualizar cuadrilla",
+      );
+      error.status = response.status;
+      throw error;
     }
 
-    return data as CrewResponse
+    return data as CrewResponse;
   },
 
   async addMember(
     crewId: string,
-    payload: AddCrewMemberRequest
+    payload: AddCrewMemberRequest,
   ): Promise<CrewMember> {
     const response = await fetch(`${API_BASE_URL}/crews/${crewId}/members`, {
-      method: 'POST',
+      method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
-      credentials: 'include',
-    })
+      credentials: "include",
+    });
 
-    const data = await response.json().catch(() => null)
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al agregar miembro a la cuadrilla'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al agregar miembro a la cuadrilla",
+      );
+      error.status = response.status;
+      throw error;
     }
 
-    return data as CrewMember
+    return data as CrewMember;
   },
 
   async removeMember(crewId: string, memberId: string): Promise<void> {
     const response = await fetch(
       `${API_BASE_URL}/crews/${crewId}/members/${memberId}`,
       {
-        method: 'DELETE',
+        method: "DELETE",
         headers: getAuthHeaders(),
-        credentials: 'include',
-      }
-    )
+        credentials: "include",
+      },
+    );
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({
-        message: 'Error al quitar miembro de la cuadrilla',
-      }))
+        message: "Error al quitar miembro de la cuadrilla",
+      }));
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al quitar miembro de la cuadrilla'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al quitar miembro de la cuadrilla",
+      );
+      error.status = response.status;
+      throw error;
     }
   },
 
   async deleteCrew(crewId: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/crews/${crewId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: getAuthHeaders(),
-      credentials: 'include',
-    })
+      credentials: "include",
+    });
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({
-        message: 'Error al eliminar cuadrilla',
-      }))
+        message: "Error al eliminar cuadrilla",
+      }));
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al eliminar cuadrilla'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al eliminar cuadrilla",
+      );
+      error.status = response.status;
+      throw error;
     }
   },
 
   async reconfigureCrewsPreview(
-    payload: ReconfigureCrewsRequest
+    payload: ReconfigureCrewsRequest,
   ): Promise<ReconfigureCrewsPreviewResponse> {
     const response = await fetch(`${API_BASE_URL}/crews/reconfigure/preview`, {
-      method: 'POST',
+      method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
-      credentials: 'include',
-    })
+      credentials: "include",
+    });
 
-    const data = await response.json().catch(() => null)
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al obtener preview de reconfiguración'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al obtener preview de reconfiguración",
+      );
+      error.status = response.status;
+      throw error;
     }
 
-    return data as ReconfigureCrewsPreviewResponse
+    return data as ReconfigureCrewsPreviewResponse;
   },
 
   async reconfigureCrewsConfirm(
-    payload: ReconfigureCrewsRequest
+    payload: ReconfigureCrewsRequest,
   ): Promise<ReconfigureCrewsResponse> {
     const response = await fetch(`${API_BASE_URL}/crews/reconfigure/confirm`, {
-      method: 'POST',
+      method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
-      credentials: 'include',
-    })
+      credentials: "include",
+    });
 
-    const data = await response.json().catch(() => null)
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
       const error: Error & { status?: number } = new Error(
-        data?.message || 'Error al confirmar reconfiguración de cuadrillas'
-      )
-      error.status = response.status
-      throw error
+        data?.message || "Error al confirmar reconfiguración de cuadrillas",
+      );
+      error.status = response.status;
+      throw error;
     }
 
-    return data as ReconfigureCrewsResponse
+    return data as ReconfigureCrewsResponse;
   },
-}
-
-
+};
