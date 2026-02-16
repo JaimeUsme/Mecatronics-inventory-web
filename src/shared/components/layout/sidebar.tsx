@@ -187,14 +187,15 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
         <button
           type="button"
           onClick={onCloseMobile}
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 top-0 left-0 right-0 h-[100svh] bg-black/50 z-40 md:hidden"
           aria-label="Cerrar menú"
         />
       )}
 
       <aside
         className={cn(
-          'bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col h-screen fixed left-0 top-0 z-50',
+          'bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col fixed left-0 top-0 z-50',
+          'h-screen h-[100svh]', /* 100svh = small viewport: en móvil evita que la barra de URL tape el sidebar; fallback 100vh */
           'w-64',
           isCollapsed ? 'md:w-16' : 'md:w-64',
           'transition-transform duration-300 ease-in-out',
@@ -350,8 +351,8 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
         })}
       </nav>
 
-        {/* Controles en móvil: idioma, tema, perfil */}
-        <div className="md:hidden flex-shrink-0 border-t border-gray-200 dark:border-gray-800 p-4 space-y-3">
+        {/* Controles en móvil: idioma, tema, perfil — pb-8 para no quedar bajo la barra de URL */}
+        <div className="md:hidden flex-shrink-0 border-t border-gray-200 dark:border-gray-800 p-4 pb-8 space-y-3">
           {profile?.wispro && (
             <div className="pt-2">
               <WisproConnectionStatus />
