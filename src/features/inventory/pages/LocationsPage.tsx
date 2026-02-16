@@ -105,6 +105,13 @@ export function LocationsPage() {
           'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
       }
     }
+    if (type === 'crew') {
+      return {
+        label: t('locations.type.crew') || 'Cuadrilla',
+        className:
+          'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+      }
+    }
     return {
       label: t('locations.type.technician'),
       className:
@@ -114,49 +121,49 @@ export function LocationsPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8 max-w-full">
         {/* Header */}
-        <div className="mb-4 flex items-start justify-between">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-              {t('locations.title')}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              {t('locations.subtitle')}
-            </p>
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-0">
+            <div className="min-w-0">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                {t('locations.title')}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                {t('locations.subtitle')}
+              </p>
+            </div>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto min-h-10 touch-manipulation"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              {t('locations.new')}
+            </Button>
           </div>
-          <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => setIsCreateOpen(true)}
-          >
-            {t('locations.new')}
-          </Button>
         </div>
 
         {/* Filtros */}
-        <Card className="mb-6 p-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-            {/* Search */}
-            <div className="flex-1">
+        <Card className="mb-4 sm:mb-6 p-4">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:flex-wrap">
+            <div className="w-full lg:flex-1 min-w-0">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={t('locations.searchPlaceholder')}
-                  className="pl-10"
+                  className="pl-9 sm:pl-10 min-h-10 sm:min-h-11"
                 />
               </div>
             </div>
 
-            {/* Tipo de ubicación */}
-            <div className="w-full lg:w-56">
+            <div className="w-full lg:w-56 min-w-0">
               <Select
                 value={typeFilter}
                 onValueChange={(val) => setTypeFilter(val as 'all' | LocationType)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="min-h-10 sm:min-h-11">
                   <SelectValue placeholder={t('locations.filters.type')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,13 +183,12 @@ export function LocationsPage() {
               </Select>
             </div>
 
-            {/* Filtro de estado */}
-            <div className="w-full lg:w-56">
+            <div className="w-full lg:w-56 min-w-0">
               <Select
                 value={statusFilter}
                 onValueChange={(val) => setStatusFilter(val as 'all' | 'active' | 'inactive')}
               >
-                <SelectTrigger>
+                <SelectTrigger className="min-h-10 sm:min-h-11">
                   <SelectValue placeholder={t('locations.filters.status')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -199,15 +205,14 @@ export function LocationsPage() {
               </Select>
             </div>
 
-            {/* Fechas (estáticos por ahora) */}
             <div className="flex w-full lg:w-auto gap-3">
-              <Input type="date" className="w-full lg:w-40" />
-              <Input type="date" className="w-full lg:w-40" />
+              <Input type="date" className="w-full lg:w-40 min-h-10 sm:min-h-11" />
+              <Input type="date" className="w-full lg:w-40 min-h-10 sm:min-h-11" />
             </div>
 
             <Button
               variant="outline"
-              className="w-full lg:w-auto"
+              className="w-full lg:w-auto min-h-10 touch-manipulation"
               onClick={() => {
                 setSearch('')
                 setTypeFilter('all')
@@ -239,107 +244,183 @@ export function LocationsPage() {
         )}
 
         {!isLoading && !isError && (
-          <Card className="overflow-hidden">
-            <div className="w-full overflow-x-auto">
-              <table className="min-w-full text-sm border-collapse">
-                <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  <tr>
-                    <th className="px-6 py-3">{t('locations.columns.type')}</th>
-                    <th className="px-6 py-3">{t('locations.columns.name')}</th>
-                    <th className="px-6 py-3">
-                      {t('locations.columns.externalId')}
-                    </th>
-                    <th className="px-6 py-3">
-                      {t('locations.columns.status')}
-                    </th>
-                    <th className="px-6 py-3">
-                      {t('locations.columns.createdAt')}
-                    </th>
-                    <th className="px-6 py-3 text-right">
-                      {t('locations.columns.actions')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                  {filteredLocations.map((loc) => {
-                    const typeBadge = getTypeBadge(loc.type)
-                    return (
-                      <tr
-                        key={loc.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${typeBadge.className}`}
-                          >
-                            {typeBadge.label}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+          <>
+            {/* Lista en tarjetas: solo móvil */}
+            <div className="md:hidden space-y-3">
+              {filteredLocations.map((loc) => {
+                const typeBadge = getTypeBadge(loc.type)
+                return (
+                  <Card key={loc.id} className="p-4">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                           {loc.name}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                          {loc.externalId || t('locations.noExternalId')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                              loc.active
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                            }`}
-                          >
-                            {loc.active
-                              ? t('locations.status.active')
-                              : t('locations.status.inactive')}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                        </p>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium shrink-0 ${typeBadge.className}`}
+                        >
+                          {typeBadge.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('locations.columns.externalId')}: {loc.externalId || t('locations.noExternalId')}
+                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                            loc.active
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                              : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                          }`}
+                        >
+                          {loc.active
+                            ? t('locations.status.active')
+                            : t('locations.status.inactive')}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {formatDate(loc.createdAt, i18n.language || 'es-ES')}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              className="h-8 px-3 border-gray-300 dark:border-gray-700"
-                              onClick={() => {
-                                navigate(`/dashboard/inventory/stock?locationId=${loc.id}`)
-                              }}
-                            >
-                              {t('locations.viewInventory')}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-gray-300 dark:border-gray-700"
-                              onClick={() => {
-                                // Encontrar la ubicación de la API correspondiente
-                                const apiLocation = apiLocations.find((apiLoc) => apiLoc.id === loc.id)
-                                if (apiLocation) {
-                                  setLocationToEdit(apiLocation)
-                                }
-                              }}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                              onClick={() => setLocationToDelete(loc)}
-                              disabled={deleteLocation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="min-h-9 touch-manipulation border-gray-300 dark:border-gray-700"
+                          onClick={() => {
+                            navigate(`/dashboard/inventory/stock?locationId=${loc.id}`)
+                          }}
+                        >
+                          {t('locations.viewInventory')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-9 w-9 touch-manipulation border-gray-300 dark:border-gray-700"
+                          onClick={() => {
+                            const apiLocation = apiLocations.find((apiLoc) => apiLoc.id === loc.id)
+                            if (apiLocation) setLocationToEdit(apiLocation)
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-9 w-9 touch-manipulation border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                          onClick={() => setLocationToDelete(loc)}
+                          disabled={deleteLocation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                )
+              })}
             </div>
-          </Card>
+
+            {/* Tabla: solo desktop */}
+            <Card className="overflow-hidden hidden md:block">
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-full text-sm border-collapse">
+                  <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <tr>
+                      <th className="px-6 py-3">{t('locations.columns.type')}</th>
+                      <th className="px-6 py-3">{t('locations.columns.name')}</th>
+                      <th className="px-6 py-3">
+                        {t('locations.columns.externalId')}
+                      </th>
+                      <th className="px-6 py-3">
+                        {t('locations.columns.status')}
+                      </th>
+                      <th className="px-6 py-3">
+                        {t('locations.columns.createdAt')}
+                      </th>
+                      <th className="px-6 py-3 text-right">
+                        {t('locations.columns.actions')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                    {filteredLocations.map((loc) => {
+                      const typeBadge = getTypeBadge(loc.type)
+                      return (
+                        <tr
+                          key={loc.id}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${typeBadge.className}`}
+                            >
+                              {typeBadge.label}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                            {loc.name}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                            {loc.externalId || t('locations.noExternalId')}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                                loc.active
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                              }`}
+                            >
+                              {loc.active
+                                ? t('locations.status.active')
+                                : t('locations.status.inactive')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                            {formatDate(loc.createdAt, i18n.language || 'es-ES')}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                className="h-8 px-3 border-gray-300 dark:border-gray-700"
+                                onClick={() => {
+                                  navigate(`/dashboard/inventory/stock?locationId=${loc.id}`)
+                                }}
+                              >
+                                {t('locations.viewInventory')}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-gray-300 dark:border-gray-700"
+                                onClick={() => {
+                                  const apiLocation = apiLocations.find((apiLoc) => apiLoc.id === loc.id)
+                                  if (apiLocation) {
+                                    setLocationToEdit(apiLocation)
+                                  }
+                                }}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                onClick={() => setLocationToDelete(loc)}
+                                disabled={deleteLocation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </>
         )}
 
         <CreateLocationModal

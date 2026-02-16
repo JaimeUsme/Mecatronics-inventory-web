@@ -161,172 +161,170 @@ export function StockManagementPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8 max-w-full">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-0">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                 {t('stock.title')}
               </h1>
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-wrap">
                 <span>{t('stock.breadcrumb.panel')}</span>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5 shrink-0" />
                 <span>{t('stock.breadcrumb.inventory')}</span>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5 shrink-0" />
                 <span className="text-gray-900 dark:text-gray-100 font-medium">
                   {t('stock.breadcrumb.stock')}
                 </span>
               </div>
             </div>
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto min-h-10 touch-manipulation"
               onClick={() => {
                 // TODO: Abrir modal de ajustar stock
               }}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2 shrink-0" />
               {t('stock.adjustStock')}
             </Button>
           </div>
         </div>
 
-        {/* Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+        {/* Metrics Cards: 2x2 en móvil, 4 columnas en desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('stock.metrics.totalMaterials')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {metrics.totalMaterials}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Boxes className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                <Boxes className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('stock.metrics.totalLocations')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {metrics.totalLocations}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <Warehouse className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                <Warehouse className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('stock.metrics.lowStockAlerts')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {metrics.lowStockCount}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center shrink-0">
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('stock.metrics.outOfStock')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {metrics.warehouseOutOfStockCount}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </Card>
         </div>
 
         {/* Search and Filters */}
-        <Card className="mb-6 p-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-            {/* Search */}
-            <div className="flex-1">
+        <Card className="mb-4 sm:mb-6 p-4">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center">
+            <div className="w-full lg:flex-1 min-w-0">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={t('stock.searchPlaceholder')}
-                  className="pl-10"
+                  className="pl-9 sm:pl-10 min-h-10 sm:min-h-11"
                 />
               </div>
             </div>
 
-            {/* Location Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('stock.filters.location')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('stock.filters.allLocations')}</SelectItem>
-                  {locations.map((loc) => (
-                    <SelectItem key={loc.id} value={loc.id}>
-                      {loc.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:gap-2">
+              <div className="w-full lg:w-56 min-w-0">
+                <Select value={locationFilter} onValueChange={setLocationFilter}>
+                  <SelectTrigger className="min-h-10 sm:min-h-11">
+                    <SelectValue placeholder={t('stock.filters.location')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('stock.filters.allLocations')}</SelectItem>
+                    {locations.map((loc) => (
+                      <SelectItem key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-full lg:w-56 min-w-0">
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="min-h-10 sm:min-h-11">
+                    <SelectValue placeholder={t('stock.filters.category')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('stock.filters.allCategories')}</SelectItem>
+                    <SelectItem value="CABLEADO">CABLEADO</SelectItem>
+                    <SelectItem value="CONECTORES">CONECTORES</SelectItem>
+                    <SelectItem value="EQUIPOS">EQUIPOS</SelectItem>
+                    <SelectItem value="GENERAL">GENERAL</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-full lg:w-56 min-w-0">
+                <Select
+                  value={statusFilter}
+                  onValueChange={(val) => setStatusFilter(val as 'all' | 'normal' | 'low' | 'out_of_stock')}
+                >
+                  <SelectTrigger className="min-h-10 sm:min-h-11">
+                    <SelectValue placeholder={t('stock.filters.status')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('stock.filters.allStatuses')}</SelectItem>
+                    <SelectItem value="normal">{t('stock.status.normal')}</SelectItem>
+                    <SelectItem value="low">{t('stock.status.low')}</SelectItem>
+                    <SelectItem value="out_of_stock">{t('stock.status.out')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Category Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('stock.filters.category')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('stock.filters.allCategories')}</SelectItem>
-                  <SelectItem value="CABLEADO">CABLEADO</SelectItem>
-                  <SelectItem value="CONECTORES">CONECTORES</SelectItem>
-                  <SelectItem value="EQUIPOS">EQUIPOS</SelectItem>
-                  <SelectItem value="GENERAL">GENERAL</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Status Filter */}
-            <div className="w-full lg:w-56">
-              <Select
-                value={statusFilter}
-                onValueChange={(val) => setStatusFilter(val as 'all' | 'normal' | 'low' | 'out_of_stock')}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('stock.filters.status')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('stock.filters.allStatuses')}</SelectItem>
-                  <SelectItem value="normal">{t('stock.status.normal')}</SelectItem>
-                  <SelectItem value="low">{t('stock.status.low')}</SelectItem>
-                  <SelectItem value="out_of_stock">{t('stock.status.out')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button variant="outline" onClick={handleClearFilters} className="w-full lg:w-auto">
+            <Button variant="outline" onClick={handleClearFilters} className="w-full lg:w-auto min-h-10 touch-manipulation">
               {t('stock.clearFilters')}
             </Button>
           </div>
@@ -348,95 +346,165 @@ export function StockManagementPage() {
         )}
 
         {!isLoading && !isError && (
-          <Card className="overflow-hidden">
-            <div className="w-full overflow-x-auto">
-              <table className="min-w-full text-sm border-collapse">
-                <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  <tr>
-                    <th className="px-6 py-3">{t('stock.columns.material')}</th>
-                    <th className="px-6 py-3">{t('stock.columns.location')}</th>
-                    <th className="px-6 py-3">{t('stock.columns.currentStock')}</th>
-                    <th className="px-6 py-3">{t('stock.columns.minStock')}</th>
-                    <th className="px-6 py-3">{t('stock.columns.lastUpdated')}</th>
-                    <th className="px-6 py-3 text-right">{t('stock.columns.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                  {filteredStock.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                        {t('stock.noItems')}
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredStock.map((item) => {
-                      const statusBadge = getStatusBadge(item.status)
-                      return (
-                        <tr
-                          key={item.id}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
-                        >
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1">
-                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                {item.materialName}
-                              </span>
-                              <span
-                                className={cn(
-                                  'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit',
-                                  getCategoryBadge(item.materialCategory)
-                                )}
-                              >
-                                {item.materialCategory}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+          <>
+            {/* Lista en tarjetas: solo móvil */}
+            <div className="md:hidden space-y-3">
+              {filteredStock.length === 0 ? (
+                <Card className="p-6 text-center text-gray-500 dark:text-gray-400">
+                  {t('stock.noItems')}
+                </Card>
+              ) : (
+                filteredStock.map((item) => {
+                  const statusBadge = getStatusBadge(item.status)
+                  return (
+                    <Card key={item.id} className="p-4">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                            {item.materialName}
+                          </p>
+                          <span
+                            className={cn(
+                              'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit mt-1',
+                              getCategoryBadge(item.materialCategory)
+                            )}
+                          >
+                            {item.materialCategory}
+                          </span>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                             {item.locationName}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1">
-                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {item.currentStock} {item.unit}
-                              </span>
-                              <span
-                                className={cn(
-                                  'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit',
-                                  statusBadge.className
-                                )}
-                              >
-                                {statusBadge.label}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {item.currentStock} {item.unit}
+                            </span>
+                            <span
+                              className={cn(
+                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                                statusBadge.className
+                              )}
+                            >
+                              {statusBadge.label}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {t('stock.columns.minStock')}:{' '}
                             {item.minStock === null || item.minStock === 0
                               ? t('stock.noApplicable')
                               : `${item.minStock} ${item.unit}`}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                          </p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                             {formatDate(item.lastUpdated, i18n.language || 'es-ES')}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-gray-300 dark:border-gray-700"
-                              onClick={() => {
-                                // TODO: Abrir modal de ajustar stock
-                              }}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      )
-                    })
-                  )}
-                </tbody>
-              </table>
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-10 shrink-0 touch-manipulation border-gray-300 dark:border-gray-700"
+                          onClick={() => {
+                            // TODO: Abrir modal de ajustar stock
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </Card>
+                  )
+                })
+              )}
             </div>
-          </Card>
+
+            {/* Tabla: solo desktop */}
+            <Card className="overflow-hidden hidden md:block">
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-full text-sm border-collapse">
+                  <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <tr>
+                      <th className="px-6 py-3">{t('stock.columns.material')}</th>
+                      <th className="px-6 py-3">{t('stock.columns.location')}</th>
+                      <th className="px-6 py-3">{t('stock.columns.currentStock')}</th>
+                      <th className="px-6 py-3">{t('stock.columns.minStock')}</th>
+                      <th className="px-6 py-3">{t('stock.columns.lastUpdated')}</th>
+                      <th className="px-6 py-3 text-right">{t('stock.columns.actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                    {filteredStock.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                          {t('stock.noItems')}
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredStock.map((item) => {
+                        const statusBadge = getStatusBadge(item.status)
+                        return (
+                          <tr
+                            key={item.id}
+                            className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                  {item.materialName}
+                                </span>
+                                <span
+                                  className={cn(
+                                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit',
+                                    getCategoryBadge(item.materialCategory)
+                                  )}
+                                >
+                                  {item.materialCategory}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                              {item.locationName}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {item.currentStock} {item.unit}
+                                </span>
+                                <span
+                                  className={cn(
+                                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit',
+                                    statusBadge.className
+                                  )}
+                                >
+                                  {statusBadge.label}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                              {item.minStock === null || item.minStock === 0
+                                ? t('stock.noApplicable')
+                                : `${item.minStock} ${item.unit}`}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                              {formatDate(item.lastUpdated, i18n.language || 'es-ES')}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-gray-300 dark:border-gray-700"
+                                onClick={() => {
+                                  // TODO: Abrir modal de ajustar stock
+                                }}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </>
         )}
       </div>
     </DashboardLayout>

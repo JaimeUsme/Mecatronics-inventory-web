@@ -1,10 +1,14 @@
-import { Package } from 'lucide-react'
+import { Package, Menu } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useProfile } from '@/features/auth/hooks'
 import { LanguageSelector, ThemeToggle, WisproConnectionStatus, UserMenu } from './index'
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  onOpenMobileMenu?: () => void
+}
+
+export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
   const { t } = useTranslation()
   const location = useLocation()
   const { data: profile } = useProfile()
@@ -44,20 +48,27 @@ export function DashboardHeader() {
 
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        {/* Logo y título */}
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded bg-blue-600 flex items-center justify-center">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-2">
+        {/* Menú móvil + logo y título (en móvil solo hamburger + título de la vista) */}
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={onOpenMobileMenu}
+            className="md:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 shrink-0"
+            aria-label={t('sidebar.openMenu')}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          <div className="hidden md:flex h-10 w-10 rounded bg-blue-600 items-center justify-center shrink-0">
             <Package className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 truncate">
             {title}
           </h1>
         </div>
 
-        {/* Controles */}
-        <div className="flex items-center gap-4">
-          {/* Company Badge */}
+        {/* Controles: solo en desktop; en móvil van en el sidebar */}
+        <div className="hidden md:flex items-center gap-4">
           {profile?.wispro && (
             <WisproConnectionStatus />
           )}

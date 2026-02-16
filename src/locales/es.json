@@ -126,6 +126,7 @@
     "comment": "Comentario"
   },
   "sidebar": {
+    "openMenu": "Abrir menú",
     "orders": "Órdenes",
     "allOrders": "Todas las órdenes",
     "myOrders": "Mis órdenes",

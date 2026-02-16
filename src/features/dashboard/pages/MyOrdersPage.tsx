@@ -130,7 +130,7 @@ export function MyOrdersPage() {
   if (selectedOrder) {
     return (
       <DashboardLayout>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8 max-w-full">
           <OrderDetailView
             order={selectedOrder}
             onBack={() => setSelectedOrder(null)}
@@ -142,49 +142,49 @@ export function MyOrdersPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8 max-w-full">
         {/* Título y contador */}
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 sm:mb-2">
             {t('dashboard.panelTitle')}
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
             {data?.pagination?.total ?? 0} {t('dashboard.ordersCount')}
           </p>
         </div>
 
         {/* Búsqueda */}
-        <div className="mb-6">
-          <div className="flex-1 relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="mb-4 sm:mb-6">
+          <div className="w-full max-w-md relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             <Input
               type="text"
               placeholder={t('dashboard.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-9 sm:pl-10 min-h-10 sm:min-h-11"
             />
           </div>
         </div>
 
-        {/* Pestañas de estado */}
-        <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex gap-1">
+        {/* Pestañas de estado: grid 2x2 en móvil, fila en desktop */}
+        <div className="mb-4 sm:mb-6">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row sm:border-b sm:border-gray-200 sm:dark:border-gray-700 gap-2 sm:gap-1 sm:gap-0">
             <button
               onClick={() => setStatusFilter('unscheduled')}
               className={cn(
-                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                'rounded-lg sm:rounded-none sm:border-b-2 px-3 py-3 sm:py-3 text-sm font-medium transition-colors text-left sm:text-center border-2 sm:border-b-2 sm:border-transparent',
                 statusFilter === 'unscheduled'
-                  ? 'border-orange-500 text-orange-600 dark:text-orange-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 sm:bg-transparent sm:border-orange-500'
+                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 sm:bg-transparent sm:border-transparent sm:hover:bg-transparent sm:hover:text-gray-900 sm:dark:hover:text-gray-200'
               )}
             >
-              {t('dashboard.unscheduled')}
+              <span className="block sm:inline">{t('dashboard.unscheduled')}</span>
               <span className={cn(
-                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                'ml-1 sm:ml-2 px-2 py-0.5 rounded-full text-xs font-medium inline-block mt-1 sm:mt-0',
                 statusFilter === 'unscheduled'
-                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                  ? 'bg-orange-200/80 dark:bg-orange-800/50 text-orange-700 dark:text-orange-400 sm:bg-orange-100 sm:dark:bg-orange-900/30'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 sm:bg-gray-100 sm:dark:bg-gray-800'
               )}>
                 {stats.unscheduled}
               </span>
@@ -192,18 +192,18 @@ export function MyOrdersPage() {
             <button
               onClick={() => setStatusFilter('scheduled')}
               className={cn(
-                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                'rounded-lg sm:rounded-none sm:border-b-2 px-3 py-3 text-sm font-medium transition-colors text-left sm:text-center border-2 sm:border-b-2 sm:border-transparent',
                 statusFilter === 'scheduled'
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 sm:bg-transparent sm:border-blue-500'
+                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 sm:bg-transparent sm:border-transparent sm:hover:bg-transparent sm:hover:text-gray-900 sm:dark:hover:text-gray-200'
               )}
             >
-              {t('dashboard.scheduled')}
+              <span className="block sm:inline">{t('dashboard.scheduled')}</span>
               <span className={cn(
-                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                'ml-1 sm:ml-2 px-2 py-0.5 rounded-full text-xs font-medium inline-block mt-1 sm:mt-0',
                 statusFilter === 'scheduled'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                  ? 'bg-blue-200/80 dark:bg-blue-800/50 text-blue-700 dark:text-blue-400 sm:bg-blue-100 sm:dark:bg-blue-900/30'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 sm:bg-gray-100 sm:dark:bg-gray-800'
               )}>
                 {stats.scheduled}
               </span>
@@ -211,18 +211,18 @@ export function MyOrdersPage() {
             <button
               onClick={() => setStatusFilter('success')}
               className={cn(
-                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                'rounded-lg sm:rounded-none sm:border-b-2 px-3 py-3 text-sm font-medium transition-colors text-left sm:text-center border-2 sm:border-b-2 sm:border-transparent',
                 statusFilter === 'success'
-                  ? 'border-green-500 text-green-600 dark:text-green-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 sm:bg-transparent sm:border-green-500'
+                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 sm:bg-transparent sm:border-transparent sm:hover:bg-transparent sm:hover:text-gray-900 sm:dark:hover:text-gray-200'
               )}
             >
-              {t('dashboard.success')}
+              <span className="block sm:inline">{t('dashboard.success')}</span>
               <span className={cn(
-                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                'ml-1 sm:ml-2 px-2 py-0.5 rounded-full text-xs font-medium inline-block mt-1 sm:mt-0',
                 statusFilter === 'success'
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                  ? 'bg-green-200/80 dark:bg-green-800/50 text-green-700 dark:text-green-400 sm:bg-green-100 sm:dark:bg-green-900/30'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 sm:bg-gray-100 sm:dark:bg-gray-800'
               )}>
                 {stats.success}
               </span>
@@ -230,18 +230,18 @@ export function MyOrdersPage() {
             <button
               onClick={() => setStatusFilter('failure')}
               className={cn(
-                'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                'rounded-lg sm:rounded-none sm:border-b-2 px-3 py-3 text-sm font-medium transition-colors text-left sm:text-center border-2 sm:border-b-2 sm:border-transparent',
                 statusFilter === 'failure'
-                  ? 'border-red-500 text-red-600 dark:text-red-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 sm:bg-transparent sm:border-red-500'
+                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 sm:bg-transparent sm:border-transparent sm:hover:bg-transparent sm:hover:text-gray-900 sm:dark:hover:text-gray-200'
               )}
             >
-              {t('dashboard.failure')}
+              <span className="block sm:inline">{t('dashboard.failure')}</span>
               <span className={cn(
-                'ml-2 px-2 py-0.5 rounded-full text-xs',
+                'ml-1 sm:ml-2 px-2 py-0.5 rounded-full text-xs font-medium inline-block mt-1 sm:mt-0',
                 statusFilter === 'failure'
-                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                  ? 'bg-red-200/80 dark:bg-red-800/50 text-red-700 dark:text-red-400 sm:bg-red-100 sm:dark:bg-red-900/30'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 sm:bg-gray-100 sm:dark:bg-gray-800'
               )}>
                 {stats.failure}
               </span>
@@ -272,7 +272,7 @@ export function MyOrdersPage() {
         {/* Grid de órdenes */}
         {!isLoading && !isError && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {data?.orders?.map((order) => (
                 <OrderCard
                   key={order.id}
@@ -294,30 +294,32 @@ export function MyOrdersPage() {
               if (totalPages <= 1) return null
               
               return (
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left order-2 sm:order-1">
                     {t('dashboard.paginationInfo', {
                       page: currentPageNum,
                       totalPages: totalPages,
                       total: data.pagination.total || 0,
                     })}
-                  </div>
-                  <div className="flex gap-2">
+                  </p>
+                  <div className="flex gap-2 justify-center sm:justify-end order-1 sm:order-2">
                     <Button
                       variant="outline"
+                      className="min-h-10 touch-manipulation"
                       onClick={handlePreviousPage}
                       disabled={currentPageNum === 1 || isLoading}
                     >
-                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      <ChevronLeft className="h-4 w-4 mr-1 shrink-0" />
                       {t('dashboard.previous')}
                     </Button>
                     <Button
                       variant="outline"
+                      className="min-h-10 touch-manipulation"
                       onClick={handleNextPage}
                       disabled={currentPageNum >= totalPages || isLoading}
                     >
                       {t('dashboard.next')}
-                      <ChevronRight className="h-4 w-4 ml-1" />
+                      <ChevronRight className="h-4 w-4 ml-1 shrink-0" />
                     </Button>
                   </div>
                 </div>

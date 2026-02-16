@@ -116,6 +116,7 @@
     "comment": "Comment"
   },
   "sidebar": {
+    "openMenu": "Open menu",
     "orders": "Orders",
     "allOrders": "All Orders",
     "myOrders": "My Orders",

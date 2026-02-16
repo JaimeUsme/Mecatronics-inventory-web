@@ -43,104 +43,186 @@ export function MaterialsTable({ materials }: MaterialsTableProps) {
   }
 
   return (
-    <Card className="overflow-hidden">
-      <div className="w-full overflow-x-auto">
-        <table className="min-w-full text-sm border-collapse">
-          <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-            <tr>
-              <th className="px-6 py-3">{t('materials.columns.code')}</th>
-              <th className="px-6 py-3">{t('materials.columns.name')}</th>
-              <th className="px-6 py-3">{t('materials.columns.category')}</th>
-              <th className="px-6 py-3">{t('materials.columns.unit')}</th>
-              <th className="px-6 py-3">{t('materials.columns.ownershipType')}</th>
-              <th className="px-6 py-3 text-right">
-                {t('materials.columns.actions')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
-            {materials.map((material) => (
-              <tr key={material.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400">
-                  {material.code}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+    <>
+      {/* Lista en tarjetas: solo móvil */}
+      <div className="md:hidden space-y-3">
+        {materials.map((material) => (
+          <Card key={material.id} className="p-4">
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-start gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                     {material.name}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                  {material.category}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                  {material.unit}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={cn(
-                      'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
-                      material.ownershipType === 'CREW'
-                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                    )}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {material.code}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium shrink-0',
+                    material.ownershipType === 'CREW'
+                      ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                      : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  )}
+                >
+                  {material.ownershipType === 'CREW'
+                    ? t('materials.ownershipType.crew')
+                    : t('materials.ownershipType.technician')}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
+                <span>{t('materials.columns.category')}: {material.category || '—'}</span>
+                <span>{t('materials.columns.unit')}: {material.unit || '—'}</span>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 min-w-9 touch-manipulation border-gray-300 dark:border-gray-700"
+                  onClick={() => {
+                    setSelectedMaterial(material)
+                    setIsDetailOpen(true)
+                  }}
+                  title={t('materials.viewDetails', 'Ver detalles')}
+                >
+                  <Eye className="h-4 w-4 shrink-0" />
+                </Button>
+                {material.images && material.images.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-2 touch-manipulation border-gray-300 dark:border-gray-700 flex items-center gap-1"
+                    onClick={() => openImages(material)}
                   >
-                    {material.ownershipType === 'CREW'
-                      ? t('materials.ownershipType.crew')
-                      : t('materials.ownershipType.technician')}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 border-gray-300 dark:border-gray-700"
-                      onClick={() => {
-                        setSelectedMaterial(material)
-                        setIsDetailOpen(true)
-                      }}
-                      title="Ver detalles"
+                    <ImageIcon className="h-4 w-4 shrink-0" />
+                    <span className="text-xs font-medium">{material.images.length}</span>
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 min-w-9 touch-manipulation border-gray-300 dark:border-gray-700"
+                  onClick={() => {
+                    setSelectedMaterial(material)
+                    setIsEditOpen(true)
+                  }}
+                >
+                  <Pencil className="h-4 w-4 shrink-0" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 min-w-9 touch-manipulation border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                >
+                  <Trash2 className="h-4 w-4 shrink-0" />
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Tabla: solo desktop */}
+      <Card className="overflow-hidden hidden md:block">
+        <div className="w-full overflow-x-auto">
+          <table className="min-w-full text-sm border-collapse">
+            <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
+              <tr>
+                <th className="px-6 py-3">{t('materials.columns.code')}</th>
+                <th className="px-6 py-3">{t('materials.columns.name')}</th>
+                <th className="px-6 py-3">{t('materials.columns.category')}</th>
+                <th className="px-6 py-3">{t('materials.columns.unit')}</th>
+                <th className="px-6 py-3">{t('materials.columns.ownershipType')}</th>
+                <th className="px-6 py-3 text-right">
+                  {t('materials.columns.actions')}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+              {materials.map((material) => (
+                <tr key={material.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                  <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400">
+                    {material.code}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {material.name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    {material.category}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    {material.unit}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
+                        material.ownershipType === 'CREW'
+                          ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                          : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      )}
                     >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {material.images && material.images.length > 0 && (
+                      {material.ownershipType === 'CREW'
+                        ? t('materials.ownershipType.crew')
+                        : t('materials.ownershipType.technician')}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-10 border-gray-300 dark:border-gray-700 flex items-center justify-center gap-1"
-                        onClick={() => openImages(material)}
+                        className="h-8 w-8 border-gray-300 dark:border-gray-700"
+                        onClick={() => {
+                          setSelectedMaterial(material)
+                          setIsDetailOpen(true)
+                        }}
+                        title="Ver detalles"
                       >
-                        <ImageIcon className="h-4 w-4" />
-                        <span className="text-xs font-medium">
-                          {material.images.length}
-                        </span>
+                        <Eye className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 border-gray-300 dark:border-gray-700"
-                      onClick={() => {
-                        setSelectedMaterial(material)
-                        setIsEditOpen(true)
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                      {material.images && material.images.length > 0 && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-10 border-gray-300 dark:border-gray-700 flex items-center justify-center gap-1"
+                          onClick={() => openImages(material)}
+                        >
+                          <ImageIcon className="h-4 w-4" />
+                          <span className="text-xs font-medium">
+                            {material.images.length}
+                          </span>
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 border-gray-300 dark:border-gray-700"
+                        onClick={() => {
+                          setSelectedMaterial(material)
+                          setIsEditOpen(true)
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {isImagesOpen && selectedMaterial && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -202,7 +284,7 @@ export function MaterialsTable({ materials }: MaterialsTableProps) {
         material={selectedMaterial}
         onClose={() => setIsDetailOpen(false)}
       />
-    </Card>
+    </>
   )
 }
 

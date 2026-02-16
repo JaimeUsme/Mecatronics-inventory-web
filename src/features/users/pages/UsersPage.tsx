@@ -64,96 +64,223 @@ export function UsersPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8 max-w-full">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-blue-600 text-white">
-              <Settings className="h-6 w-6" />
+            <div className="p-2 rounded-lg bg-blue-600 text-white shrink-0">
+              <Settings className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
               {t('users.title')}
             </h1>
           </div>
-          <p className="text-gray-600 dark:text-gray-400 ml-12">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 ml-0 sm:ml-12">
             {t('users.description')}
           </p>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('users.stats.total')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {totalUsers}
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <UsersIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 sm:p-3 rounded-full bg-blue-100 dark:bg-blue-900/30 shrink-0">
+                <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('users.stats.active')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {activeUsers}
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                <UsersIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="p-2 sm:p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 shrink-0">
+                <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('users.stats.inactive')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {inactiveUsers}
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
-                <UsersIcon className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+              <div className="p-2 sm:p-3 rounded-full bg-gray-100 dark:bg-gray-800 shrink-0">
+                <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
           </Card>
         </div>
 
         {/* Search and Add Button */}
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="flex-1 w-full min-w-0 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             <Input
               type="text"
               placeholder={t('users.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-9 sm:pl-10 min-h-10 sm:min-h-11"
             />
           </div>
           <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto min-h-10 touch-manipulation"
             onClick={() => setIsCreateOpen(true)}
           >
-            <UserPlus className="h-4 w-4 mr-2" />
+            <UserPlus className="h-4 w-4 mr-2 shrink-0" />
             {t('users.newUser')}
           </Button>
         </div>
 
-        {/* Users Table */}
-        <Card className="overflow-hidden">
+        {/* Lista en tarjetas: solo móvil */}
+        <div className="md:hidden space-y-3">
+          {isLoading && (
+            <Card className="p-6 text-center text-gray-500 dark:text-gray-400">
+              {t('users.loading')}
+            </Card>
+          )}
+          {isError && (
+            <Card className="p-6 text-center text-red-500 dark:text-red-400">
+              {t('users.error')}
+            </Card>
+          )}
+          {!isLoading && !isError && users.length === 0 && (
+            <Card className="p-6 text-center text-gray-500 dark:text-gray-400">
+              {t('users.noUsers')}
+            </Card>
+          )}
+          {!isLoading && !isError && users.map((user) => (
+            <Card key={user.id} className="p-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                      {getInitials(user.name)}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                        {user.name}
+                      </span>
+                      {user.isCurrentUser && (
+                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 shrink-0">
+                          {t('users.currentUser')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                      user.active
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                    )}
+                  >
+                    {getStatusLabel(user.active)}
+                  </span>
+                  {user.updatedAt && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {t('users.table.lastLogin')}: {formatDate(user.updatedAt)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    className={cn(
+                      'p-2 rounded-lg min-h-9 min-w-9 flex items-center justify-center touch-manipulation transition-colors',
+                      user.isCurrentUser
+                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    )}
+                    title={user.isCurrentUser ? t('users.cannotEditSelf') : t('users.actions.edit')}
+                    onClick={() => !user.isCurrentUser && setUserToEdit(user)}
+                    disabled={user.isCurrentUser}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    className={cn(
+                      'p-2 rounded-lg min-h-9 min-w-9 flex items-center justify-center touch-manipulation transition-colors',
+                      user.isCurrentUser
+                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                        : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                    )}
+                    title={user.isCurrentUser ? t('users.cannotDeleteSelf') : t('users.actions.delete')}
+                    onClick={() => !user.isCurrentUser && setUserToDelete(user)}
+                    disabled={user.isCurrentUser}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Paginación móvil (fuera de la tabla) */}
+        {data && data.pagination && data.pagination.total_pages > 1 && (
+          <div className="md:hidden mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left order-2 sm:order-1">
+              {t('users.paginationInfo', {
+                page: data.pagination.page,
+                totalPages: data.pagination.total_pages,
+                total: data.pagination.total,
+              })}
+            </p>
+            <div className="flex gap-2 justify-center sm:justify-end order-1 sm:order-2">
+              <Button
+                variant="outline"
+                className="min-h-10 touch-manipulation"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1 || isLoading}
+              >
+                {t('users.previous')}
+              </Button>
+              <Button
+                variant="outline"
+                className="min-h-10 touch-manipulation"
+                onClick={() =>
+                  setCurrentPage((p) =>
+                    Math.min(data.pagination.total_pages, p + 1)
+                  )
+                }
+                disabled={currentPage >= data.pagination.total_pages || isLoading}
+              >
+                {t('users.next')}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Users Table: solo desktop */}
+        <Card className="overflow-hidden hidden md:block">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead className="bg-gray-50 dark:bg-gray-900/40">
@@ -294,9 +421,9 @@ export function UsersPage() {
             </table>
           </div>
           
-          {/* Pagination */}
+          {/* Pagination (desktop) */}
           {data && data.pagination && data.pagination.total_pages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-800">
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 {t('users.paginationInfo', {
                   page: data.pagination.page,
@@ -308,6 +435,7 @@ export function UsersPage() {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="min-h-9"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1 || isLoading}
                 >
@@ -316,6 +444,7 @@ export function UsersPage() {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="min-h-9"
                   onClick={() =>
                     setCurrentPage((p) =>
                       Math.min(data.pagination.total_pages, p + 1)

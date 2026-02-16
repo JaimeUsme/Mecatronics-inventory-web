@@ -50,18 +50,18 @@ export function ServiceOrderCard({ order, onClick }: ServiceOrderCardProps) {
   }
 
   return (
-    <Card 
-      className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+    <Card
+      className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer touch-manipulation active:scale-[0.99]"
       onClick={handleClick}
     >
       {/* Header con ID y Status */}
-      <div className="flex justify-between items-start mb-4">
-        <span className="text-base font-bold text-blue-700 dark:text-blue-500">
+      <div className="flex justify-between items-start gap-2 mb-3 sm:mb-4">
+        <span className="text-sm sm:text-base font-bold text-blue-700 dark:text-blue-500 shrink-0">
           #{order.sequential_id}
         </span>
         <span
           className={cn(
-            'px-3 py-1 rounded-md text-xs font-medium',
+            'px-2 py-0.5 sm:px-3 sm:py-1 rounded-md text-xs font-medium shrink-0',
             statusColor
           )}
         >
@@ -70,41 +70,41 @@ export function ServiceOrderCard({ order, onClick }: ServiceOrderCardProps) {
       </div>
 
       {/* Descripción con chevron */}
-      <div className="flex items-start gap-2 mb-6">
-        <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex-1">
+      <div className="flex items-start gap-2 mb-4 sm:mb-6">
+        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 flex-1 line-clamp-2">
           {order.description}
         </h3>
       </div>
 
-      {/* Información detallada */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-2 flex-1">
-          <User className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-          <div className="flex flex-col">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+      {/* Información detallada: apilar en móvil, fila en desktop */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+        <div className="flex items-start gap-2 min-w-0">
+          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {t('serviceOrders.card.client') || 'Cliente:'}
             </span>
-            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
               {order.orderable_name}
             </span>
           </div>
         </div>
-        <div className="flex items-start gap-2 flex-1">
-          <User className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-          <div className="flex flex-col">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-start gap-2 min-w-0">
+          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {t('serviceOrders.card.assignedTo') || 'Asignado a:'}
             </span>
-            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
               {order.employee_name}
             </span>
           </div>
         </div>
-        <div className="flex items-start gap-2 flex-1">
-          <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-          <div className="flex flex-col">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-start gap-2 min-w-0">
+          <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {t('serviceOrders.card.created') || 'Creada:'}
             </span>
             <span className="text-xs font-medium text-gray-700 dark:text-gray-300">

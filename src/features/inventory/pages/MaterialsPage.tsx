@@ -51,37 +51,39 @@ export function MaterialsPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8 max-w-full">
         {/* Header */}
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-              {t('materials.title')}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              {data?.pagination?.total ?? 0}{' '}
-              {t('materials.count', { count: data?.pagination?.total ?? 0 })}
-            </p>
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-0">
+            <div className="min-w-0">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                {t('materials.title')}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                {data?.pagination?.total ?? 0}{' '}
+                {t('materials.count', { count: data?.pagination?.total ?? 0 })}
+              </p>
+            </div>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto min-h-10 touch-manipulation"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-2 shrink-0" />
+              {t('materials.create')}
+            </Button>
           </div>
-          <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => setIsCreateOpen(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('materials.create')}
-          </Button>
         </div>
 
         {/* Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+        <div className="mb-4 sm:mb-6">
+          <div className="relative max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400" />
             <Input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('materials.searchPlaceholder')}
-              className="pl-10"
+              className="pl-9 sm:pl-10 min-h-10 sm:min-h-11"
             />
           </div>
         </div>
@@ -112,27 +114,29 @@ export function MaterialsPage() {
 
             {/* Paginación */}
             {data?.pagination && data.pagination.total_pages > 1 && (
-              <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left order-2 sm:order-1">
                   {t('materials.paginationInfo', {
                     page: data.pagination.page,
                     totalPages: data.pagination.total_pages,
                     total: data.pagination.total,
                   })}
-                </div>
-                <div className="flex gap-2">
+                </p>
+                <div className="flex gap-2 justify-center sm:justify-end order-1 sm:order-2">
                   <Button
                     variant="outline"
+                    className="min-h-10 touch-manipulation"
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(1, prev - 1))
                     }
                     disabled={currentPage === 1 || isLoading}
                   >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    <ChevronLeft className="h-4 w-4 mr-1 shrink-0" />
                     {t('materials.previous') || 'Anterior'}
                   </Button>
                   <Button
                     variant="outline"
+                    className="min-h-10 touch-manipulation"
                     onClick={() => {
                       if (
                         data &&
@@ -148,7 +152,7 @@ export function MaterialsPage() {
                     }
                   >
                     {t('materials.next') || 'Siguiente'}
-                    <ChevronRight className="h-4 w-4 ml-1" />
+                    <ChevronRight className="h-4 w-4 ml-1 shrink-0" />
                   </Button>
                 </div>
               </div>

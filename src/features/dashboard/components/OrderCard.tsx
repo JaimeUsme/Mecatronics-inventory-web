@@ -57,16 +57,14 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
   const fullAddress = order.gps_point?.full_address || ''
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            #{order.sequential_id}
-          </span>
-        </div>
+    <Card className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
+      <div className="flex justify-between items-start gap-2 mb-3 sm:mb-4">
+        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 shrink-0">
+          #{order.sequential_id}
+        </span>
         <span
           className={cn(
-            'px-2 py-1 rounded-full text-xs font-medium',
+            'px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium shrink-0',
             statusColor
           )}
         >
@@ -74,22 +72,22 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
         </span>
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
         {order.description || t('dashboard.noDescription')}
       </h3>
 
-      <div className="space-y-3 mb-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Building2 className="h-4 w-4 flex-shrink-0" />
-          <span className="line-clamp-2">{fullAddress || t('dashboard.noDescription')}</span>
+      <div className="space-y-2 sm:space-y-3 mb-4">
+        <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 min-w-0">
+          <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 mt-0.5" />
+          <span className="line-clamp-2 break-words">{fullAddress || t('dashboard.noDescription')}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <User className="h-4 w-4 flex-shrink-0" />
-          <span className="line-clamp-1">{order.employee_name}</span>
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 min-w-0">
+          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+          <span className="line-clamp-1 truncate">{order.employee_name}</span>
         </div>
         {order.created_at && (
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <Calendar className="h-4 w-4 flex-shrink-0" />
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
             <span>{formatDate(order.created_at)}</span>
           </div>
         )}
@@ -97,10 +95,10 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
 
       <Button
         onClick={onViewDetails}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+        className="w-full min-h-10 sm:min-h-9 bg-blue-600 hover:bg-blue-700 text-white touch-manipulation text-sm sm:text-base"
       >
         {t('dashboard.viewDetails')}
-        <ArrowRight className="ml-2 h-4 w-4" />
+        <ArrowRight className="ml-2 h-4 w-4 shrink-0" />
       </Button>
     </Card>
   )

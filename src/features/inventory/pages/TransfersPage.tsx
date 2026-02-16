@@ -145,231 +145,223 @@ export function TransfersPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8 max-w-full">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-0">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                 {t('transfers.title')}
               </h1>
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-wrap">
                 <span>{t('transfers.breadcrumb.panel')}</span>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5 shrink-0" />
                 <span>{t('transfers.breadcrumb.inventory')}</span>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5 shrink-0" />
                 <span className="text-gray-900 dark:text-gray-100 font-medium">
                   {t('transfers.breadcrumb.transfers')}
                 </span>
               </div>
             </div>
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto min-h-10 touch-manipulation"
               onClick={() => setIsCreateTransferOpen(true)}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2 shrink-0" />
               {t('transfers.newTransfer')}
             </Button>
           </div>
         </div>
 
         {/* Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('transfers.stats.today')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {stats.today}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('transfers.stats.thisWeek')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {stats.thisWeek}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <Package className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                <Package className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">
                   {t('transfers.stats.thisMonth')}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {stats.thisMonth}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
           </Card>
         </div>
 
         {/* Search and Filters */}
-        <Card className="mb-6 p-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:flex-wrap">
-            {/* Search */}
-            <div className="flex-1">
+        <Card className="mb-4 sm:mb-6 p-4">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:flex-wrap">
+            <div className="w-full lg:flex-1 min-w-0">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={t('transfers.searchPlaceholder')}
-                  className="pl-10"
+                  className="pl-9 sm:pl-10 min-h-10 sm:min-h-11"
                 />
               </div>
             </div>
 
-            {/* Material Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={materialFilter} onValueChange={setMaterialFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('transfers.filters.material')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('transfers.filters.selectMaterial')}</SelectItem>
-                  {materials.map((material) => (
-                    <SelectItem key={material.id} value={material.id}>
-                      {material.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:flex-wrap lg:gap-2">
+              <div className="w-full lg:w-56 min-w-0">
+                <Select value={materialFilter} onValueChange={setMaterialFilter}>
+                  <SelectTrigger className="min-h-10 sm:min-h-11">
+                    <SelectValue placeholder={t('transfers.filters.material')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('transfers.filters.selectMaterial')}</SelectItem>
+                    {materials.map((material) => (
+                      <SelectItem key={material.id} value={material.id}>
+                        {material.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-full lg:w-56 min-w-0">
+                <Select value={fromLocationFilter} onValueChange={setFromLocationFilter}>
+                  <SelectTrigger className="min-h-10 sm:min-h-11">
+                    <SelectValue placeholder={t('transfers.filters.fromLocation')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('transfers.filters.selectFromLocation')}</SelectItem>
+                    {locations.map((location: LocationResponse) => (
+                      <SelectItem key={location.id} value={location.id}>
+                        {location.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-full lg:w-56 min-w-0">
+                <Select value={toLocationFilter} onValueChange={setToLocationFilter}>
+                  <SelectTrigger className="min-h-10 sm:min-h-11">
+                    <SelectValue placeholder={t('transfers.filters.toLocation')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('transfers.filters.selectToLocation')}</SelectItem>
+                    {locations.map((location: LocationResponse) => (
+                      <SelectItem key={location.id} value={location.id}>
+                        {location.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-full lg:w-56 min-w-0">
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="min-h-10 sm:min-h-11">
+                    <SelectValue placeholder={t('transfers.filters.type')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('transfers.filters.allTypes')}</SelectItem>
+                    <SelectItem value="TRANSFER">{t('transfers.filters.transfer')}</SelectItem>
+                    <SelectItem value="CONSUMPTION">{t('transfers.filters.consumption')}</SelectItem>
+                    <SelectItem value="DAMAGED">{t('transfers.filters.damaged')}</SelectItem>
+                    <SelectItem value="ADJUSTMENT">{t('transfers.filters.adjustment')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full lg:w-[200px] justify-start text-left font-normal min-h-10 sm:min-h-11',
+                        !dateFrom && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="truncate">
+                        {dateFrom ? format(dateFrom, 'PPP', { locale: dateLocale }) : (t('transfers.filters.dateFrom') || 'Desde')}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateFrom}
+                      onSelect={setDateFrom}
+                      initialFocus
+                      locale={dateLocale}
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full lg:w-[200px] justify-start text-left font-normal min-h-10 sm:min-h-11',
+                        !dateTo && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="truncate">
+                        {dateTo ? format(dateTo, 'PPP', { locale: dateLocale }) : (t('transfers.filters.dateTo') || 'Hasta')}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateTo}
+                      onSelect={setDateTo}
+                      initialFocus
+                      locale={dateLocale}
+                      disabled={(date: Date) => dateFrom ? date < dateFrom : false}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
 
-            {/* From Location Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={fromLocationFilter} onValueChange={setFromLocationFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('transfers.filters.fromLocation')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('transfers.filters.selectFromLocation')}</SelectItem>
-                  {locations.map((location: LocationResponse) => (
-                    <SelectItem key={location.id} value={location.id}>
-                      {location.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* To Location Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={toLocationFilter} onValueChange={setToLocationFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('transfers.filters.toLocation')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('transfers.filters.selectToLocation')}</SelectItem>
-                  {locations.map((location: LocationResponse) => (
-                    <SelectItem key={location.id} value={location.id}>
-                      {location.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Type Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('transfers.filters.type')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('transfers.filters.allTypes')}</SelectItem>
-                  <SelectItem value="TRANSFER">{t('transfers.filters.transfer')}</SelectItem>
-                  <SelectItem value="CONSUMPTION">{t('transfers.filters.consumption')}</SelectItem>
-                  <SelectItem value="DAMAGED">{t('transfers.filters.damaged')}</SelectItem>
-                  <SelectItem value="ADJUSTMENT">{t('transfers.filters.adjustment')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Date Range Filter */}
-            <div className="w-full lg:w-auto flex flex-col lg:flex-row gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'w-full lg:w-[200px] justify-start text-left font-normal',
-                      !dateFrom && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? (
-                      format(dateFrom, 'PPP', { locale: dateLocale })
-                    ) : (
-                      <span>{t('transfers.filters.dateFrom') || 'Desde'}</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateFrom}
-                    onSelect={setDateFrom}
-                    initialFocus
-                    locale={dateLocale}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'w-full lg:w-[200px] justify-start text-left font-normal',
-                      !dateTo && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? (
-                      format(dateTo, 'PPP', { locale: dateLocale })
-                    ) : (
-                      <span>{t('transfers.filters.dateTo') || 'Hasta'}</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateTo}
-                    onSelect={setDateTo}
-                    initialFocus
-                    locale={dateLocale}
-                    disabled={(date: Date) => dateFrom ? date < dateFrom : false}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <Button variant="outline" onClick={handleClearFilters} className="w-full lg:w-auto">
-              <X className="h-4 w-4 mr-2" />
+            <Button variant="outline" onClick={handleClearFilters} className="w-full lg:w-auto min-h-10 touch-manipulation">
+              <X className="h-4 w-4 mr-2 shrink-0" />
               {t('transfers.clearFilters')}
             </Button>
           </div>
@@ -391,136 +383,229 @@ export function TransfersPage() {
         )}
 
         {!isLoading && !isError && (
-          <Card className="overflow-hidden">
-            <div className="w-full overflow-x-auto lg:overflow-x-visible">
-              <table className="w-full text-sm border-collapse">
-                <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  <tr>
-                    <th className="px-6 py-3">{t('transfers.columns.date')}</th>
-                    <th className="px-6 py-3">{t('transfers.columns.material')}</th>
-                    <th className="px-6 py-3">{t('transfers.columns.quantity')}</th>
-                    <th className="px-6 py-3">{t('transfers.columns.fromTo')}</th>
-                    <th className="px-6 py-3">{t('transfers.columns.technician')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                  {movements.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                        {t('transfers.noItems')}
-                      </td>
-                    </tr>
-                  ) : (
-                    movements.map((movement) => {
-                      const categoryBadge = getCategoryBadge(movement.materialCategory)
-                      const fromLocationType = getLocationType(movement.fromLocationId)
-                      const toLocationType = movement.toLocationId ? getLocationType(movement.toLocationId) : null
-                      return (
-                        <tr
-                          key={movement.id}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
-                        >
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1">
-                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {formatDate(movement.createdAt, i18n.language || 'es-ES')}
-                              </span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {getRelativeTime(movement.createdAt)}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1">
-                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                {movement.materialName}
-                              </span>
-                              <span
-                                className={cn(
-                                  'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit',
-                                  categoryBadge
-                                )}
-                              >
-                                {movement.materialCategory}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                              {movement.quantity} {movement.materialUnit}
+          <>
+            {/* Lista en tarjetas: solo móvil */}
+            <div className="md:hidden space-y-3">
+              {movements.length === 0 ? (
+                <Card className="p-6 text-center text-gray-500 dark:text-gray-400">
+                  {t('transfers.noItems')}
+                </Card>
+              ) : (
+                movements.map((movement) => {
+                  const categoryBadge = getCategoryBadge(movement.materialCategory)
+                  const fromLocationType = getLocationType(movement.fromLocationId)
+                  const toLocationType = movement.toLocationId ? getLocationType(movement.toLocationId) : null
+                  return (
+                    <Card key={movement.id} className="p-4">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {formatDate(movement.createdAt, i18n.language || 'es-ES')}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {getRelativeTime(movement.createdAt)}
+                            </p>
+                          </div>
+                          <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 shrink-0">
+                            {movement.quantity} {movement.materialUnit}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {movement.materialName}
+                          </p>
+                          <span
+                            className={cn(
+                              'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit mt-1',
+                              categoryBadge
+                            )}
+                          >
+                            {movement.materialCategory}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm flex-wrap">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {fromLocationType === 'WAREHOUSE' ? (
+                              <Warehouse className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
+                            ) : fromLocationType === 'CREW' ? (
+                              <Users className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
+                            ) : (
+                              <User className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
+                            )}
+                            <span className="text-gray-700 dark:text-gray-300 truncate">
+                              {movement.fromLocationName}
                             </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1.5">
-                                {fromLocationType === 'WAREHOUSE' ? (
-                                  <Warehouse className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                ) : fromLocationType === 'CREW' ? (
-                                  <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-gray-400 shrink-0" />
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {movement.type === 'DAMAGED' || movement.type === 'CONSUMPTION' || !movement.toLocationId || !movement.toLocationName ? (
+                              <>
+                                <Minus className="h-3.5 w-3.5 text-red-500 dark:text-red-400 shrink-0" />
+                                <span className="text-red-600 dark:text-red-400 font-medium">
+                                  {movement.type === 'DAMAGED' ? t('transfers.damage') || 'Daño' : t('transfers.expense') || 'Gasto'}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                {toLocationType === 'WAREHOUSE' ? (
+                                  <Warehouse className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
+                                ) : toLocationType === 'CREW' ? (
+                                  <Users className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
                                 ) : (
-                                  <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                  <User className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
                                 )}
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  {movement.fromLocationName}
+                                <span className="text-gray-700 dark:text-gray-300 truncate">
+                                  {movement.toLocationName}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {movement.technicianId && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t('transfers.technician')}: {movement.technicianId.substring(0, 8)}...
+                          </p>
+                        )}
+                      </div>
+                    </Card>
+                  )
+                })
+              )}
+            </div>
+
+            {/* Tabla: solo desktop */}
+            <Card className="overflow-hidden hidden md:block">
+              <div className="w-full overflow-x-auto lg:overflow-x-visible">
+                <table className="w-full text-sm border-collapse">
+                  <thead className="bg-gray-50 dark:bg-gray-900/40 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <tr>
+                      <th className="px-6 py-3">{t('transfers.columns.date')}</th>
+                      <th className="px-6 py-3">{t('transfers.columns.material')}</th>
+                      <th className="px-6 py-3">{t('transfers.columns.quantity')}</th>
+                      <th className="px-6 py-3">{t('transfers.columns.fromTo')}</th>
+                      <th className="px-6 py-3">{t('transfers.columns.technician')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                    {movements.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                          {t('transfers.noItems')}
+                        </td>
+                      </tr>
+                    ) : (
+                      movements.map((movement) => {
+                        const categoryBadge = getCategoryBadge(movement.materialCategory)
+                        const fromLocationType = getLocationType(movement.fromLocationId)
+                        const toLocationType = movement.toLocationId ? getLocationType(movement.toLocationId) : null
+                        return (
+                          <tr
+                            key={movement.id}
+                            className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {formatDate(movement.createdAt, i18n.language || 'es-ES')}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {getRelativeTime(movement.createdAt)}
                                 </span>
                               </div>
-                              <ArrowRight className="h-4 w-4 text-gray-400" />
-                              <div className="flex items-center gap-1.5">
-                                {movement.type === 'DAMAGED' || movement.type === 'CONSUMPTION' || !movement.toLocationId || !movement.toLocationName ? (
-                                  <>
-                                    <Minus className="h-4 w-4 text-red-500 dark:text-red-400" />
-                                    <span className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                      {movement.type === 'DAMAGED' 
-                                        ? t('transfers.damage') || 'Daño'
-                                        : t('transfers.expense') || 'Gasto'}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    {toLocationType === 'WAREHOUSE' ? (
-                                      <Warehouse className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                    ) : toLocationType === 'CREW' ? (
-                                      <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                    ) : (
-                                      <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                    )}
-                                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                                      {movement.toLocationName}
-                                    </span>
-                                  </>
-                                )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                  {movement.materialName}
+                                </span>
+                                <span
+                                  className={cn(
+                                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium w-fit',
+                                    categoryBadge
+                                  )}
+                                >
+                                  {movement.materialCategory}
+                                </span>
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            {movement.technicianId ? (
-                              <div className="flex items-center gap-2">
-                                <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                  <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {t('transfers.technician')}
-                                  </span>
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
-                                    {movement.technicianId.substring(0, 8)}...
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {t('transfers.noTechnician')}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                {movement.quantity} {movement.materialUnit}
                               </span>
-                            )}
-                          </td>
-                        </tr>
-                      )
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
+                                  {fromLocationType === 'WAREHOUSE' ? (
+                                    <Warehouse className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                  ) : fromLocationType === 'CREW' ? (
+                                    <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                  ) : (
+                                    <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                  )}
+                                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                                    {movement.fromLocationName}
+                                  </span>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-gray-400" />
+                                <div className="flex items-center gap-1.5">
+                                  {movement.type === 'DAMAGED' || movement.type === 'CONSUMPTION' || !movement.toLocationId || !movement.toLocationName ? (
+                                    <>
+                                      <Minus className="h-4 w-4 text-red-500 dark:text-red-400" />
+                                      <span className="text-sm text-red-600 dark:text-red-400 font-medium">
+                                        {movement.type === 'DAMAGED'
+                                          ? t('transfers.damage') || 'Daño'
+                                          : t('transfers.expense') || 'Gasto'}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {toLocationType === 'WAREHOUSE' ? (
+                                        <Warehouse className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                      ) : toLocationType === 'CREW' ? (
+                                        <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                      ) : (
+                                        <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                      )}
+                                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                                        {movement.toLocationName}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              {movement.technicianId ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                      {t('transfers.technician')}
+                                    </span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
+                                      {movement.technicianId.substring(0, 8)}...
+                                    </span>
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t('transfers.noTechnician')}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </>
         )}
 
         {/* Create Transfer Modal */}

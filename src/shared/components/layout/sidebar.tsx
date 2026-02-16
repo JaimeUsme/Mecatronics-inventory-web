@@ -15,6 +15,12 @@ import {
 } from 'lucide-react'
 import { cn } from '@/shared/utils'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useMediaQuery } from '@/shared/hooks'
+import { LanguageSelector } from './language-selector'
+import { ThemeToggle } from './theme-toggle'
+import { UserMenu } from './UserMenu'
+import { WisproConnectionStatus } from './WisproConnectionStatus'
+import { useProfile } from '@/features/auth/hooks'
 
 interface MenuItem {
   id: string
@@ -33,15 +39,24 @@ interface MenuItem {
 
 interface SidebarProps {
   onCollapseChange?: (isCollapsed: boolean) => void
+  /** En móvil: si el drawer está abierto */
+  mobileOpen?: boolean
+  /** En móvil: cerrar el drawer (al hacer clic fuera o en un enlace) */
+  onCloseMobile?: () => void
 }
 
-export function Sidebar({ onCollapseChange }: SidebarProps) {
+export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }: SidebarProps) {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const { data: profile } = useProfile()
+  const isDesktop = useMediaQuery('md')
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [ordersMenuOpen, setOrdersMenuOpen] = useState(false)
   const [inventoryMenuOpen, setInventoryMenuOpen] = useState(false)
+
+  // En móvil el drawer siempre se muestra expandido; en desktop se respeta isCollapsed
+  const effectiveCollapsed = isCollapsed && isDesktop
 
   const menuItems: MenuItem[] = useMemo(() => {
     // Mecatronics tiene acceso a todo
@@ -134,11 +149,13 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
 
   const handleItemClick = (path: string) => {
     navigate(path)
+    onCloseMobile?.()
   }
 
   const handleSubmenuClick = (path: string) => {
     navigate(path)
-    if (isCollapsed) {
+    onCloseMobile?.()
+    if (effectiveCollapsed) {
       setOrdersMenuOpen(false)
       setInventoryMenuOpen(false)
     }
@@ -164,34 +181,49 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
   }
 
   return (
-    <aside
-      className={cn(
-        'bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col h-screen fixed left-0 top-0',
-        isCollapsed ? 'w-16' : 'w-64'
-      )}
-    >
-      {/* Toggle button */}
-      <div className="flex justify-end p-2 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+    <>
+      {/* Overlay en móvil cuando el drawer está abierto */}
+      {mobileOpen && (
         <button
-          onClick={() => {
-            const newCollapsed = !isCollapsed
-            setIsCollapsed(newCollapsed)
-            onCollapseChange?.(newCollapsed)
-            if (!newCollapsed) {
-              setOrdersMenuOpen(false)
-              setInventoryMenuOpen(false)
-            }
-          }}
-          className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-          ) : (
-            <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-          )}
-        </button>
-      </div>
+          type="button"
+          onClick={onCloseMobile}
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          aria-label="Cerrar menú"
+        />
+      )}
+
+      <aside
+        className={cn(
+          'bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col h-screen fixed left-0 top-0 z-50',
+          'w-64',
+          isCollapsed ? 'md:w-16' : 'md:w-64',
+          'transition-transform duration-300 ease-in-out',
+          mobileOpen ? 'translate-x-0' : '-translate-x-full',
+          'md:translate-x-0'
+        )}
+      >
+        {/* Toggle button: solo en desktop */}
+        <div className="hidden md:flex justify-end p-2 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+          <button
+            onClick={() => {
+              const newCollapsed = !isCollapsed
+              setIsCollapsed(newCollapsed)
+              onCollapseChange?.(newCollapsed)
+              if (!newCollapsed) {
+                setOrdersMenuOpen(false)
+                setInventoryMenuOpen(false)
+              }
+            }}
+            className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            ) : (
+              <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            )}
+          </button>
+        </div>
 
       {/* Menu items */}
       <nav className="flex-1 p-2 space-y-2 overflow-y-auto">
@@ -201,8 +233,8 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
           const hasActiveSubmenu = item.submenuItems?.some((sub) => isSubmenuActive(sub.path))
 
           if (item.hasSubmenu) {
-            // Cuando está colapsado, mostrar solo el botón sin submenú
-            if (isCollapsed) {
+            // Cuando está colapsado (solo en desktop), mostrar solo el botón sin submenú
+            if (effectiveCollapsed) {
               return (
                 <button
                   key={item.id}
@@ -298,7 +330,7 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
               onClick={() => handleItemClick(item.path)}
               className={cn(
                 'w-full flex items-center gap-3 rounded-lg transition-colors',
-                isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3',
+                effectiveCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3',
                 active
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -310,7 +342,7 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
                   active ? 'text-white' : 'text-gray-600 dark:text-gray-400'
                 )}
               />
-              {!isCollapsed && (
+              {!effectiveCollapsed && (
                 <span className="font-medium">{item.label}</span>
               )}
             </button>
@@ -318,7 +350,21 @@ export function Sidebar({ onCollapseChange }: SidebarProps) {
         })}
       </nav>
 
-    </aside>
+        {/* Controles en móvil: idioma, tema, perfil */}
+        <div className="md:hidden flex-shrink-0 border-t border-gray-200 dark:border-gray-800 p-4 space-y-3">
+          {profile?.wispro && (
+            <div className="pt-2">
+              <WisproConnectionStatus />
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-3">
+            <LanguageSelector />
+            <ThemeToggle />
+            <UserMenu />
+          </div>
+        </div>
+      </aside>
+    </>
   )
 }
 
