@@ -12,6 +12,10 @@ import {
   ArrowLeftRight,
   FileText,
   Settings,
+  ClipboardList,
+  PenLine,
+  LayoutTemplate,
+  Search,
 } from 'lucide-react'
 import { cn } from '@/shared/utils'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -54,6 +58,7 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [ordersMenuOpen, setOrdersMenuOpen] = useState(false)
   const [inventoryMenuOpen, setInventoryMenuOpen] = useState(false)
+  const [securityFormsMenuOpen, setSecurityFormsMenuOpen] = useState(false)
 
   // En móvil el drawer siempre se muestra expandido; en desktop se respeta isCollapsed
   const effectiveCollapsed = isCollapsed && isDesktop
@@ -137,13 +142,49 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
         icon: Settings,
         path: '/dashboard/users',
       },
+      {
+        id: 'security-forms',
+        label: t('sidebar.securityForms'),
+        icon: ClipboardList,
+        path: '/dashboard/security-forms',
+        hasSubmenu: true,
+        submenuItems: [
+          {
+            id: 'fill-forms',
+            label: t('sidebar.fillForms'),
+            path: '/dashboard/security-forms',
+            icon: PenLine,
+          },
+          {
+            id: 'manage-templates',
+            label: t('sidebar.manageTemplates'),
+            path: '/dashboard/security-forms/manage',
+            icon: LayoutTemplate,
+          },
+          {
+            id: 'form-review',
+            label: t('sidebar.formReview'),
+            path: '/dashboard/security-forms/review',
+            icon: Search,
+          },
+          {
+            id: 'plantillas',
+            label: t('sidebar.plantillas'),
+            path: '/dashboard/security-forms/plantillas',
+            icon: FileText,
+          },
+        ],
+      },
     ]
   }, [t])
 
-  // Abrir automáticamente el submenú de órdenes si estamos en /dashboard o /dashboard/my-orders
+  // Abrir automáticamente el submenú según la ruta actual
   useEffect(() => {
     if (location.pathname === '/dashboard' || location.pathname.startsWith('/dashboard/my-orders')) {
       setOrdersMenuOpen(true)
+    }
+    if (location.pathname.startsWith('/dashboard/security-forms')) {
+      setSecurityFormsMenuOpen(true)
     }
   }, [location.pathname])
 
@@ -171,13 +212,22 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
   }
 
   const isSubmenuActive = (path: string) => {
-    // Comparar pathname directamente
-    // Si el path es /dashboard, solo está activo si la URL actual es exactamente /dashboard (sin /my-orders)
     if (path === '/dashboard') {
       return location.pathname === '/dashboard'
     }
-    // Para otras rutas, verificar si el pathname coincide
     return location.pathname === path || location.pathname.startsWith(path + '/')
+  }
+
+  /** Para submenús con varios hijos: solo el que mejor coincide con la ruta (más largo) está activo. */
+  const getActiveSubmenuItem = (submenuItems: MenuItem['submenuItems']) => {
+    if (!submenuItems?.length) return null
+    const pathname = location.pathname
+    const matching = submenuItems
+      .filter(
+        (sub) => pathname === sub.path || (pathname.startsWith(sub.path + '/') && sub.path !== '/dashboard')
+      )
+      .sort((a, b) => b.path.length - a.path.length)
+    return matching[0] ?? null
   }
 
   return (
@@ -213,6 +263,7 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
               if (!newCollapsed) {
                 setOrdersMenuOpen(false)
                 setInventoryMenuOpen(false)
+                setSecurityFormsMenuOpen(false)
               }
             }}
             className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -232,9 +283,11 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
           const Icon = item.icon
           const active = isActive(item.path)
           const hasActiveSubmenu = item.submenuItems?.some((sub) => isSubmenuActive(sub.path))
+          const activeSubItem = item.submenuItems ? getActiveSubmenuItem(item.submenuItems) : null
+          const parentIsSelected =
+            item.id === 'security-forms' ? false : (active || hasActiveSubmenu)
 
           if (item.hasSubmenu) {
-            // Cuando está colapsado (solo en desktop), mostrar solo el botón sin submenú
             if (effectiveCollapsed) {
               return (
                 <button
@@ -243,7 +296,7 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
                   className={cn(
                     'w-full flex items-center gap-3 rounded-lg transition-colors',
                     'justify-center px-2 py-3',
-                    active || hasActiveSubmenu
+                    parentIsSelected
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   )}
@@ -252,15 +305,21 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
                   <Icon
                     className={cn(
                       'h-5 w-5 flex-shrink-0',
-                      active || hasActiveSubmenu ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                      parentIsSelected ? 'text-white' : 'text-gray-600 dark:text-gray-400'
                     )}
                   />
                 </button>
               )
             }
-            
-            // Cuando está expandido, mostrar el menú desplegable
-            const isMenuOpen = item.id === 'orders' ? ordersMenuOpen : inventoryMenuOpen
+
+            const isMenuOpen =
+              item.id === 'orders'
+                ? ordersMenuOpen
+                : item.id === 'inventory'
+                  ? inventoryMenuOpen
+                  : item.id === 'security-forms'
+                    ? securityFormsMenuOpen
+                    : false
             return (
               <div key={item.id} className="space-y-1">
                 <button
@@ -269,12 +328,14 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
                       setOrdersMenuOpen(!ordersMenuOpen)
                     } else if (item.id === 'inventory') {
                       setInventoryMenuOpen(!inventoryMenuOpen)
+                    } else if (item.id === 'security-forms') {
+                      setSecurityFormsMenuOpen(!securityFormsMenuOpen)
                     }
                   }}
                   className={cn(
                     'w-full flex items-center justify-between gap-3 rounded-lg transition-colors',
                     'px-4 py-3',
-                    active || hasActiveSubmenu
+                    parentIsSelected
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   )}
@@ -283,7 +344,7 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
                     <Icon
                       className={cn(
                         'h-5 w-5 flex-shrink-0',
-                        active || hasActiveSubmenu ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                        parentIsSelected ? 'text-white' : 'text-gray-600 dark:text-gray-400'
                       )}
                     />
                     <span className="font-medium">{item.label}</span>
@@ -292,14 +353,14 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
                     className={cn(
                       'h-4 w-4 transition-transform',
                       isMenuOpen ? 'rotate-180' : '',
-                      active || hasActiveSubmenu ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                      parentIsSelected ? 'text-white' : 'text-gray-600 dark:text-gray-400'
                     )}
                   />
                 </button>
                 {isMenuOpen && item.submenuItems && (
                   <div className="ml-4 space-y-1">
                     {item.submenuItems.map((subItem) => {
-                      const subActive = isSubmenuActive(subItem.path)
+                      const subActive = activeSubItem?.id === subItem.id
                       const SubIcon = subItem.icon
                       return (
                         <button
@@ -330,22 +391,26 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
               key={item.id}
               onClick={() => handleItemClick(item.path)}
               className={cn(
-                'w-full flex items-center gap-3 rounded-lg transition-colors',
+                'w-full flex items-center rounded-lg transition-colors',
                 effectiveCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3',
                 active
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               )}
             >
-              <Icon
-                className={cn(
-                  'h-5 w-5 flex-shrink-0',
-                  active ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
+                  <Icon
+                    className={cn(
+                      'h-5 w-5',
+                      active ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                    )}
+                  />
+                </span>
+                {!effectiveCollapsed && (
+                  <span className="min-w-0 flex-1 text-left font-medium">{item.label}</span>
                 )}
-              />
-              {!effectiveCollapsed && (
-                <span className="font-medium">{item.label}</span>
-              )}
+              </div>
             </button>
           )
         })}

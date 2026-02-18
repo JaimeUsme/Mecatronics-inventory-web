@@ -1,0 +1,20 @@
+# Ignorar dependencias y archivos de sistema
+node_modules/
+.git/
+.vscode/
+
+# Ignorar archivos de build
+dist/
+build/
+out/
+
+# Ignorar archivos pesados que no son código
+*.log
+*.json
+*.lock
+package-lock.json
+yarn.lock
+*.svg
+*.png
+*.jpg
+*.pdf

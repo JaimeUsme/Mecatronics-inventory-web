@@ -38,6 +38,14 @@ export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
     title = t('crews.title')
   } else if (pathname.startsWith('/dashboard/users')) {
     title = t('users.title')
+  } else if (pathname.startsWith('/dashboard/security-forms/manage')) {
+    title = t('securityForms.management.title')
+  } else if (pathname.startsWith('/dashboard/security-forms/review')) {
+    title = t('securityForms.review.title')
+  } else if (pathname.startsWith('/dashboard/security-forms/plantillas')) {
+    title = t('sidebar.plantillas')
+  } else if (pathname.startsWith('/dashboard/security-forms')) {
+    title = t('securityForms.title')
   } else if (pathname.startsWith('/dashboard/account')) {
     title = t('account.title')
   } else if (pathname.startsWith('/dashboard/inventory')) {
@@ -62,7 +70,7 @@ export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
           <div className="hidden md:flex h-10 w-10 rounded bg-blue-600 items-center justify-center shrink-0">
             <Package className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 truncate">
+          <h1 className="text-base sm:text-xl font-semibold text-gray-900 dark:text-gray-100 truncate min-w-0">
             {title}
           </h1>
         </div>

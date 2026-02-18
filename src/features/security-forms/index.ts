@@ -1,0 +1,5 @@
+export { SecurityFormsPage } from './pages/SecurityFormsPage'
+export { FillFormPage } from './pages/FillFormPage'
+export { TemplateManagementPage } from './pages/TemplateManagementPage'
+export { FormReviewPage } from './pages/FormReviewPage'
+export { PlantillasPage } from './pages/PlantillasPage'

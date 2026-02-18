@@ -6,6 +6,7 @@ import { EmployeesPage, UsersPage } from '@/features/users'
 import { MaterialsPage, LocationsPage, StockManagementPage, TransfersPage } from '@/features/inventory'
 import { ServiceOrderMaterialsPage } from '@/features/service-orders'
 import { CrewManagementPage } from '@/features/crews'
+import { SecurityFormsPage, FillFormPage, TemplateManagementPage, FormReviewPage, PlantillasPage } from '@/features/security-forms'
 
 export const router = createBrowserRouter([
   {
@@ -58,6 +59,26 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard/users',
         element: <UsersPage />,
+      },
+      {
+        path: '/dashboard/security-forms',
+        element: <SecurityFormsPage />,
+      },
+      {
+        path: '/dashboard/security-forms/fill/:templateId',
+        element: <FillFormPage />,
+      },
+      {
+        path: '/dashboard/security-forms/manage',
+        element: <TemplateManagementPage />,
+      },
+      {
+        path: '/dashboard/security-forms/review',
+        element: <FormReviewPage />,
+      },
+      {
+        path: '/dashboard/security-forms/plantillas',
+        element: <PlantillasPage />,
       },
       {
         path: '/dashboard/account',

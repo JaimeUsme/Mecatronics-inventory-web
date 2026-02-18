@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:pdf": "node scripts/preview-pdf-view.mjs",
+    "preview:pdf:export": "node scripts/preview-pdf-view.mjs --pdf",
+    "preview:pdf:png": "node scripts/preview-pdf-view.mjs --png"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -47,6 +50,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "puppeteer": "^24.0.0"
   }
 }

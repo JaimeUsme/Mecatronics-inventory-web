@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formato de Permiso de Trabajo en Alturas</title>
+  <style>
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  /* A4 horizontal: ancho 297mm (área útil ~277mm con márgenes 10mm) */
+  html, body {
+    width: 277mm;
+    max-width: 277mm;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  table {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  td, th {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  img {
+    max-width: 100%;
+  }
+    * { box-sizing: border-box; }
+    .wrap { min-height: 100vh; background: #e0e0e0; padding: 24px 16px; }
+    .article { margin: 0 auto; background: #fff; }
+    table { width: 100%; border-collapse: collapse; }
+    .b { border: 1px solid #000; }
+    .section-bg { background-color: #c5e0f4; }
+    .label-bg { background-color: #d4eaf2; }
+    .dotted-cell { background-color: #f5f5f5; background-image: radial-gradient(circle, #ccc 1px, transparent 1px); background-size: 4px 4px; }
+    .w22 { width: 22%; }
+    .w28 { width: 28%; }
+    .w56 { width: 56%; }
+    .w60 { width: 60%; }
+    .p0 { padding: 0; }
+    .p1 { padding: 4px; }
+    .p1-5 { padding: 6px; }
+    .p2 { padding: 8px; }
+    .p2-5 { padding: 10px; }
+    .p3 { padding: 12px; }
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-lg { font-size: 1.125rem; }
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+    .align-top { vertical-align: top; }
+    .align-middle { vertical-align: middle; }
+    .excel-check { display: inline-block; width: 16px; height: 16px; border: 1px solid #000; margin-left: 4px; vertical-align: middle; }
+    .sino-cell { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; }
+    .sino-cell span { display: inline-flex; align-items: center; }
+    .inner-table { width: 100%; border-collapse: collapse; }
+    .inner-table .b { border: 1px solid #000; }
+    col.w25 { width: 25%; }
+    col.w30 { width: 30%; }
+    col.w12 { width: 12%; }
+    col.w16 { width: 16%; }
+    col.w18 { width: 18%; }
+    col.w9 { width: 9%; }
+    col.w11 { width: 11%; }
+    col.w20 { width: 20%; }
+    col.w14 { width: 14%; }
+    col.w28 { width: 28%; }
+    col.w22 { width: 22%; }
+    .logo-cell { height: 120px; }
+    .logo-cell img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: left; }
+    .min-h44 { min-height: 44px; }
+    .h-persona { height: 80px; min-height: 80px; }
+    .h-persona td img { max-height: 70px; width: auto; }
+    .h72 { height: 72px; min-height: 72px; }
+    .h140 { height: 140px; min-height: 140px; }
+    .text-333 { color: #333; }
+
+  @media print {
+    /* A4 horizontal: 277mm ancho en px (1046) para coincidir con viewport landscape */
+    html, body {
+      width: 1046px !important;
+      max-width: 1046px !important;
+      min-width: 1046px !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+
+    .wrap, .article {
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+    }
+
+    table {
+      width: 100% !important;
+      max-width: 100% !important;
+      table-layout: fixed !important;
+      page-break-inside: auto;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+
+    td, th {
+      page-break-inside: avoid;
+    }
+
+    .inner-table {
+      page-break-inside: auto;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <article class="article">
+      <table class="main-table b">
+        <tbody>
+          <tr>
+            <td class="b w22 p0 align-middle logo-cell">
+              <img src="logo.png" alt="MECATRONICS" />
+            </td>
+            <td class="b w56 p2 text-center align-middle">
+              <span class="text-lg font-bold">FORMATO DE PERMISO DE TRABAJO EN ALTURAS</span>
+            </td>
+            <td class="b label-bg w22 p0 align-top">
+              <table class="inner-table text-xs font-semibold">
+                <tbody>
+                  <tr><td class="b p1" style="width:45%">CÓDIGO:</td><td class="b p1">{{codigo}}</td></tr>
+                  <tr><td class="b p1">VERSIÓN:</td><td class="b p1">{{version}}</td></tr>
+                  <tr><td class="b p1">FECHA:</td><td class="b p1">{{fechaDocumento}}</td></tr>
+                  <tr><td class="b p1">PÁGINA:</td><td class="b p1">{{pagina}}</td></tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="p0">
+              <table class="inner-table">
+                <colgroup><col class="w25" /><col class="w25" /><col class="w25" /><col class="w25" /></colgroup>
+                <tbody>
+                  <tr>
+                    <td class="b label-bg p1-5 text-sm font-bold">Fecha de Inicio del Permiso:</td>
+                    <td class="b p1-5 dotted-cell">{{fechaInicioPermiso}}</td>
+                    <td class="b label-bg p1-5 text-sm font-bold">Hora de Inicio:</td>
+                    <td class="b p1-5 dotted-cell">{{horaInicio}}</td>
+                  </tr>
+                  <tr>
+                    <td class="b label-bg p1-5 text-sm font-bold">Fecha de Terminación del Permiso:</td>
+                    <td class="b p1-5 dotted-cell">{{fechaTerminacionPermiso}}</td>
+                    <td class="b label-bg p1-5 text-sm font-bold">Hora de finalización:</td>
+                    <td class="b p1-5 dotted-cell">{{horaFinalizacion}}</td>
+                  </tr>
+                  <tr>
+                    <td class="b label-bg p1-5 text-sm font-bold">Lugar de Ejecución del Trabajo en Alturas:</td>
+                    <td class="b p1-5 dotted-cell">{{lugarEjecucionTrabajoAlturas}}</td>
+                    <td class="b label-bg p1-5 text-sm font-bold">Altura aproximada:</td>
+                    <td class="b p1-5 dotted-cell">{{alturaAproximada}}<span class="text-sm text-333"> mt</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="b section-bg p2 text-sm font-bold">
+              Descripción de la Tarea a Realizar (marque con una X):
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3" class="p0">
+              <table class="inner-table">
+                <colgroup><col class="w25" /><col class="w25" /><col class="w25" /><col class="w25" /></colgroup>
+                <tbody>
+                  <tr>
+                    <td class="b p2 text-sm">
+                      <input type="checkbox" {{trabajoInstalacion}} onclick="return false;"> Instalación de redes de telecomunicaciones
+                    </td>
+                    <td class="b p2 text-sm">
+                      <input type="checkbox" {{trabajoMantenimiento}} onclick="return false;"> Mantenimiento de redes de telecomunicaciones
+                    </td>
+                    <td class="b p2 text-sm">
+                      <input type="checkbox" {{trabajoSuspension}} onclick="return false;"> Suspensión de redes de telecomunicaciones
+                    </td>
+                    <td class="b p2 text-sm">
+                      <input type="checkbox" {{trabajoReconexion}} onclick="return false;"> Reconexión de redes de telecomunicaciones
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="p0">
+              <table class="inner-table text-sm">
+                <colgroup><col class="w30" /><col class="w12" /><col class="w30" /><col class="w12" /><col class="w16" /></colgroup>
+                <tbody>
+                  <tr>
+                    <td class="b p2 align-top">Los trabajadores cuentan con la certificacion de capacitacion y/o competencia laboral para el trabajo seguro en alturas?</td>
+                    <td class="b p1-5 text-center align-top"><div class="sino-cell"><span>SI <span class="excel-check">{{certificacionTrabajoAlturasSi}}</span></span><span>NO <span class="excel-check">{{certificacionTrabajoAlturasNo}}</span></span></div></td>
+                    <td class="b p2 align-top">Todo el personal tiene afiliación vigente a la Seguridad Social?</td>
+                    <td class="b p1-5 text-center align-top"><div class="sino-cell"><span>SI <span class="excel-check">{{afiliacionSeguridadSocialSi}}</span></span><span>NO <span class="excel-check">{{afiliacionSeguridadSocialNo}}</span></span></div></td>
+                    <td rowspan="2" class="b p2 align-top">
+                      <div>El personal ha ingerido licor o sustancias psicoactivas en las últimas 24 horas?</div>
+                      <div style="margin-top:8px; display:flex; align-items:center; gap:16px;"><div class="sino-cell"><span>SI <span class="excel-check">{{ingeridoLicorSi}}</span></span><span>NO <span class="excel-check">{{ingeridoLicorNo}}</span></span></div></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="b p2 align-top">Todo el personal ha recibido una inducción y notificación de riesgos y medidas preventivas de acuerdo a su cargo?</td>
+                    <td class="b p1-5 text-center align-top"><div class="sino-cell"><span>SI <span class="excel-check">{{induccionRiesgosSi}}</span></span><span>NO <span class="excel-check">{{induccionRiesgosNo}}</span></span></div></td>
+                    <td class="b p2 align-top">Todo el personal se encuentra en óptimas condiciones de salud?</td>
+                    <td class="b p1-5 text-center align-top"><div class="sino-cell"><span>SI <span class="excel-check">{{condicionesSaludSi}}</span></span><span>NO <span class="excel-check">{{condicionesSaludNo}}</span></span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="b section-bg p3 text-sm font-bold text-center">
+              PERSONAL AUTORIZADO PARA EJECUTAR LA ACTIVIDAD
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3" class="p0">
+              <table class="inner-table text-sm">
+                <colgroup><col class="w18" /><col class="w9" /><col class="w11" /><col class="w20" /><col class="w14" /><col class="w28" /></colgroup>
+                <thead>
+                  <tr>
+                    <th class="b section-bg p2-5 text-left font-bold">Nombre y Apellidos</th>
+                    <th class="b section-bg p2-5 text-left font-bold">Tipo de Documento</th>
+                    <th class="b section-bg p2-5 text-left font-bold">Número de Documento</th>
+                    <th class="b section-bg p2-5 text-left font-bold">Cargo</th>
+                    <th class="b section-bg p2-5 text-left font-bold">Nivel de Certificación de TA</th>
+                    <th class="b section-bg p2-5 text-left font-bold">FIRMA Declaro que me encuentro en optimas condiciones para ejecutar la labor y cumplire las normas establecidas por la empresa.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="h-persona">
+                    <td class="b p3 dotted-cell align-middle">{{persona1NombreApellidos}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona1TipoDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona1NumeroDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona1Cargo}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona1NivelCertificacionTa}}</td>
+                    <td class="b p3 align-top dotted-cell">{{persona1Firma}}</td>
+                  </tr>
+                  <tr class="h-persona">
+                    <td class="b p3 dotted-cell align-middle">{{persona2NombreApellidos}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona2TipoDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona2NumeroDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona2Cargo}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona2NivelCertificacionTa}}</td>
+                    <td class="b p3 align-top dotted-cell">{{persona2Firma}}</td>
+                  </tr>
+                  <tr class="h-persona">
+                    <td class="b p3 dotted-cell align-middle">{{persona3NombreApellidos}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona3TipoDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona3NumeroDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona3Cargo}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona3NivelCertificacionTa}}</td>
+                    <td class="b p3 align-top dotted-cell">{{persona3Firma}}</td>
+                  </tr>
+                  <tr class="h-persona">
+                    <td class="b p3 dotted-cell align-middle">{{persona4NombreApellidos}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona4TipoDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona4NumeroDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona4Cargo}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona4NivelCertificacionTa}}</td>
+                    <td class="b p3 align-top dotted-cell">{{persona4Firma}}</td>
+                  </tr>
+                  <tr class="h-persona">
+                    <td class="b p3 dotted-cell align-middle">{{persona5NombreApellidos}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona5TipoDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona5NumeroDocumento}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona5Cargo}}</td>
+                    <td class="b p3 dotted-cell align-middle">{{persona5NivelCertificacionTa}}</td>
+                    <td class="b p3 align-top dotted-cell">{{persona5Firma}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="b label-bg w28 p2 text-sm font-bold align-top">Medidas de prevención contra caídas a implementar:</td>
+            <td colspan="2" class="b p2 text-sm min-h44 align-top">{{medidasPrevencion}}</td>
+          </tr>
+
+          <tr>
+            <td class="b label-bg w28 p2 text-sm font-bold align-top">Listado de equipos contra caídas para desarrollar la actividad:</td>
+            <td colspan="2" class="b p2 text-sm align-top">{{listadoEquiposCaidas}}</td>
+          </tr>
+          <tr>
+            <td class="b label-bg w28 p2 text-sm font-bold align-top">Herramientas y/o Equipos de Trabajo a Utilizar :</td>
+            <td colspan="2" class="b p2 text-sm align-top">{{herramientasEquiposTrabajo}}</td>
+          </tr>
+
+          <tr>
+            <td class="b section-bg p2 text-sm font-bold w60">PUNTOS DE ANCLAJE EN DONDE SE VAN A ASEGURAR LOS SISTEMAS:</td>
+            <td colspan="2" class="b section-bg p2 text-sm font-bold">SISTEMAS DE ACCESO A UTILIZAR:</td>
+          </tr>
+          <tr>
+            <td class="b p2 text-sm align-top">{{puntosAnclaje}}</td>
+            <td colspan="2" class="b p2 text-sm align-top">{{sistemasAcceso}}</td>
+          </tr>
+
+          <tr>
+            <td class="b label-bg w28 p2 text-sm font-bold align-top">Factores de riesgo identificados asociados al trabajo a realizar:</td>
+            <td colspan="2" class="b p2 text-sm align-top">{{factoresRiesgo}}</td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="p0">
+              <table class="inner-table text-sm">
+                <thead>
+                  <tr>
+                    <th rowspan="2" class="b section-bg p2 text-left font-bold w22 align-middle">ELEMENTOS DE PROTECCIÓN PERSONAL (EPP) A USAR (Marque con una X los elementos necesarios)</th>
+                    <th class="b section-bg p1-5 text-center font-bold">Casco con Barbuquejo</th>
+                    <th class="b section-bg p1-5 text-center font-bold">Gafas de Seguridad</th>
+                    <th class="b section-bg p1-5 text-center font-bold">Botas de Seguridad</th>
+                    <th class="b section-bg p1-5 text-center font-bold">Mascarilla</th>
+                    <th class="b section-bg p1-5 text-center font-bold">Guantes</th>
+                    <th class="b section-bg p1-5 text-center font-bold">OTROS</th>
+                    <th colspan="3" class="b section-bg p1-5 text-center font-bold">Estado del EPP</th>
+                  </tr>
+                  <tr>
+                    <th class="b section-bg p1 text-center text-xs font-bold"></th>
+                    <th class="b section-bg p1 text-center text-xs font-bold"></th>
+                    <th class="b section-bg p1 text-center text-xs font-bold"></th>
+                    <th class="b section-bg p1 text-center text-xs font-bold"></th>
+                    <th class="b section-bg p1 text-center text-xs font-bold"></th>
+                    <th class="b section-bg p1 text-center text-xs font-bold"></th>
+                    <th class="b section-bg p1 text-center text-xs font-bold">B</th>
+                    <th class="b section-bg p1 text-center text-xs font-bold">R</th>
+                    <th class="b section-bg p1 text-center text-xs font-bold">M</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="b p2 align-top dotted-cell"></td>
+                    <td class="b p2 text-center align-top">{{eppCasco}}</td>
+                    <td class="b p2 text-center align-top">{{eppGafas}}</td>
+                    <td class="b p2 text-center align-top">{{eppBotas}}</td>
+                    <td class="b p2 text-center align-top">{{eppMascarilla}}</td>
+                    <td class="b p2 text-center align-top">{{eppGuantes}}</td>
+                    <td class="b p2 text-center align-top">{{eppOtros}}</td>
+                    <td class="b p2 text-center align-top dotted-cell">{{eppEstadoB}}</td>
+                    <td class="b p2 text-center align-top dotted-cell">{{eppEstadoR}}</td>
+                    <td class="b p2 text-center align-top dotted-cell">{{eppEstadoM}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="b dotted-cell p3 text-xs align-top">* Una vez inspeccionada el área de trabajo, comprobado el cumplimiento de los requisitos indicados, y verificado los Elementos de Protección Personal necesarios para la ejecución del trabajo, Certificamos que se ha efectuado correctamente los trabajos preparatorios indicados y que se puede realizar el trabajo en alturas.</td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="b dotted-cell p2 align-top text-sm h140"><span class="font-bold">OBSERVACIONES GENERALES:</span> {{observacionesGenerales}}</td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="b dotted-cell p2 align-top text-sm" style="min-height:44px"><span class="font-bold">NOMBRE DEL AYUDANTE DE SEGURIDAD:</span> {{nombreAyudanteSeguridad}}</td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="b section-bg p2 text-sm font-bold text-center">AUTORIZACIÓN DEL TRABAJO (Emisores del permiso)</td>
+          </tr>
+          <tr>
+            <td class="b section-bg p2 text-sm font-bold text-center" style="width:33.33%">Coordinador de Trabajo en Alturas</td>
+            <td class="b section-bg p2 text-sm font-bold text-center" style="width:33.33%">Persona que Autoriza el Trabajo en Alturas</td>
+            <td class="b section-bg p2 text-sm font-bold text-center" style="width:33.33%">Persona Responsable de Activar el Plan de Emergencias</td>
+          </tr>
+          <tr>
+            <td class="b dotted-cell p2 align-top text-sm"><span class="font-bold">Nombre y Apellido:</span> {{coordinadorNombreApellido}}</td>
+            <td class="b dotted-cell p2 align-top text-sm"><span class="font-bold">Nombre y Apellido:</span> {{autorizadorNombreApellido}}</td>
+            <td class="b dotted-cell p2 align-top text-sm"><span class="font-bold">Nombre y Apellido:</span> {{responsableEmergenciasNombreApellido}}</td>
+          </tr>
+          <tr>
+            <td class="b dotted-cell p2 align-top text-sm"><span class="font-bold">Cédula:</span> {{coordinadorCedula}}</td>
+            <td class="b dotted-cell p2 align-top text-sm"><span class="font-bold">Cédula:</span> {{autorizadorCedula}}</td>
+            <td class="b dotted-cell p2 align-top text-sm"><span class="font-bold">Cédula:</span> {{responsableEmergenciasCedula}}</td>
+          </tr>
+          <tr>
+            <td class="b dotted-cell p2 align-top text-sm h72"><span class="font-bold">Firma:</span> {{coordinadorFirma}}</td>
+            <td class="b dotted-cell p2 align-top text-sm h72"><span class="font-bold">Firma:</span> {{autorizadorFirma}}</td>
+            <td class="b dotted-cell p2 align-top text-sm h72"><span class="font-bold">Firma:</span> {{responsableEmergenciasFirma}}</td>
+          </tr>
+
+          <tr>
+            <td colspan="2" class="b p1"></td>
+            <td class="b p1 text-right text-sm text-333">{{textoPiePagina}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+  </div>
+</body>
+</html>

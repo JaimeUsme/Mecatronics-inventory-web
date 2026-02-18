@@ -4,3 +4,10 @@
  */
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'
+
+/**
+ * Base URL del backend de Formularios de Seguridad (form-templates).
+ * Solo esta vista usa este backend.
+ */
+export const SECURITY_FORMS_API_URL =
+  import.meta.env.VITE_SECURITY_FORMS_API_URL ?? ''

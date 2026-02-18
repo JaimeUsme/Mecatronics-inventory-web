@@ -5,9 +5,13 @@ export async function fetchWithAuth(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const headers = {
-    ...getAuthHeaders(),
-    ...options.headers,
+  const authHeaders = getAuthHeaders() as Record<string, string>
+  const optionsHeaders = (options.headers ?? {}) as Record<string, string>
+  const headers: Record<string, string> = { ...authHeaders, ...optionsHeaders }
+
+  // Con FormData no se debe enviar Content-Type; el navegador lo pone con el boundary
+  if (options.body instanceof FormData) {
+    delete headers['Content-Type']
   }
 
   const response = await fetch(url, {
