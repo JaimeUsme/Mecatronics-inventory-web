@@ -10,7 +10,7 @@ import {
 } from '@/shared/components/ui/select'
 import { FormTemplateIcon } from '../../lib/lucide-icon'
 import { SignaturePad } from '../SignaturePad'
-import type { FormFieldResponseDto, FormFieldType, MultiCheckboxValue, MultiCheckboxOptionDto } from '../../types'
+import type { FormFieldResponseDto, FormFieldType, MultiCheckboxValue, MultiCheckboxOptionDto, FormFieldOption } from '../../types'
 import { cn } from '@/shared/utils'
 
 export interface FormFieldWidgetProps {
@@ -41,13 +41,14 @@ function FieldLabel({ field }: { field: FormFieldResponseDto }) {
 }
 
 export function TextFieldWidget({ field, value, onChange, error, disabled }: FormFieldWidgetProps) {
+  const strValue = typeof value === 'string' ? value : ''
   return (
     <div className="space-y-1">
       <FieldLabel field={field} />
       <Input
         id={field.id}
         type="text"
-        value={value ?? ''}
+        value={strValue}
         onChange={(e) => onChange(e.target.value)}
         required={field.required}
         disabled={disabled}
@@ -60,13 +61,14 @@ export function TextFieldWidget({ field, value, onChange, error, disabled }: For
 }
 
 export function EmailFieldWidget({ field, value, onChange, error, disabled }: FormFieldWidgetProps) {
+  const strValue = typeof value === 'string' ? value : ''
   return (
     <div className="space-y-1">
       <FieldLabel field={field} />
       <Input
         id={field.id}
         type="email"
-        value={value ?? ''}
+        value={strValue}
         onChange={(e) => onChange(e.target.value)}
         required={field.required}
         disabled={disabled}
@@ -101,12 +103,13 @@ export function NumberFieldWidget({ field, value, onChange, error, disabled }: F
 }
 
 export function TextareaFieldWidget({ field, value, onChange, error, disabled }: FormFieldWidgetProps) {
+  const strValue = typeof value === 'string' ? value : ''
   return (
     <div className="space-y-1">
       <FieldLabel field={field} />
       <Textarea
         id={field.id}
-        value={value ?? ''}
+        value={strValue}
         onChange={(e) => onChange(e.target.value)}
         required={field.required}
         disabled={disabled}
@@ -146,10 +149,10 @@ export function DateFieldWidget({ field, value, onChange, error, disabled }: For
   )
 }
 
-const BOOLEAN_OPTIONS = [
-  { value: true as const, label: 'Sí' },
-  { value: false as const, label: 'No' },
-  { value: undefined as const, label: 'N/A' },
+const BOOLEAN_OPTIONS: Array<{ value: boolean | undefined; label: string }> = [
+  { value: true, label: 'Sí' },
+  { value: false, label: 'No' },
+  { value: undefined, label: 'N/A' },
 ]
 
 export function BooleanFieldWidget({ field, value, onChange, error, disabled }: FormFieldWidgetProps) {
@@ -190,7 +193,7 @@ export function BooleanFieldWidget({ field, value, onChange, error, disabled }: 
 }
 
 export function SelectFieldWidget({ field, value, onChange, error, disabled }: FormFieldWidgetProps) {
-  const options = field.options ?? []
+  const options = (field.options ?? []) as FormFieldOption[]
   const valueStr = value === undefined || value === null ? '' : String(value)
   return (
     <div className="space-y-1">

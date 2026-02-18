@@ -747,7 +747,7 @@ export function TemplateFormModal({
                                     <Input
                                       value={(opt as FormFieldOption).value || ''}
                                       onChange={(e) => {
-                                        const opts = [...(field.options ?? [])]
+                                        const opts = [...(field.options ?? [])] as FormFieldOption[]
                                         opts[optIdx] = { ...(opts[optIdx] as FormFieldOption), value: e.target.value }
                                         updateField(index, { options: opts })
                                       }}
@@ -760,7 +760,7 @@ export function TemplateFormModal({
                                     <Input
                                       value={(opt as FormFieldOption).label || ''}
                                       onChange={(e) => {
-                                        const opts = [...(field.options ?? [])]
+                                        const opts = [...(field.options ?? [])] as FormFieldOption[]
                                         opts[optIdx] = { ...(opts[optIdx] as FormFieldOption), label: e.target.value }
                                         updateField(index, { options: opts })
                                       }}
