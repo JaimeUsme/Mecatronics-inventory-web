@@ -16,7 +16,7 @@ interface SignaturePadProps {
   required?: boolean
 }
 
-export function SignaturePad({ value, onChange, disabled, error, className, label, required = true }: SignaturePadProps) {
+export function SignaturePad({ onChange, disabled, error, className, label, required = true }: SignaturePadProps) {
   const { t } = useTranslation()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isDrawing = useRef(false)

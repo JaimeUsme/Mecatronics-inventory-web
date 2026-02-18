@@ -328,7 +328,10 @@ export function TemplateFormModal({
   fields.forEach((f) => {
     if (f.variable?.trim()) allAssignedVariables.add(f.variable.trim())
     if (f.fieldType === 'multi_checkbox' && f.options) {
-      f.options.forEach((o) => { if (o.variable.trim()) allAssignedVariables.add(o.variable.trim()) })
+      f.options.forEach((o) => {
+        const opt = o as MultiCheckboxOptionDto
+        if (opt.variable?.trim()) allAssignedVariables.add(opt.variable.trim())
+      })
     }
   })
 
@@ -371,7 +374,7 @@ export function TemplateFormModal({
         varToLabel[f.variable.trim()] = f.label.trim()
       }
       if (f.fieldType === 'multi_checkbox' && f.options && f.label?.trim()) {
-        f.options.forEach((opt) => {
+        (f.options as MultiCheckboxOptionDto[]).forEach((opt) => {
           if (opt.variable.trim()) varToLabel[opt.variable.trim()] = `${f.label.trim()} → ${opt.label || opt.variable}`
         })
       }
@@ -796,7 +799,7 @@ export function TemplateFormModal({
                                   size="sm"
                                   className="h-7 text-xs border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40"
                                   onClick={() => {
-                                    const opts: MultiCheckboxOptionDto[] = [...(field.options ?? []), { label: '', variable: '' }]
+                                    const opts = [...(field.options ?? []), { label: '', variable: '' }] as MultiCheckboxOptionDto[]
                                     updateField(index, { options: opts })
                                   }}
                                 >
@@ -809,7 +812,7 @@ export function TemplateFormModal({
                                   {t('securityForms.management.noOptionsYet')}
                                 </p>
                               )}
-                              {(field.options ?? []).map((opt, optIdx) => {
+                              {((field.options ?? []) as MultiCheckboxOptionDto[]).map((opt, optIdx) => {
                                 const assignedExcludingSelf = new Set(
                                   [...allAssignedVariables].filter((v) => v !== opt.variable)
                                 )
@@ -822,7 +825,7 @@ export function TemplateFormModal({
                                       <Input
                                         value={opt.label}
                                         onChange={(e) => {
-                                          const opts = [...(field.options ?? [])]
+                                          const opts = [...(field.options ?? [])] as MultiCheckboxOptionDto[]
                                           opts[optIdx] = { ...opts[optIdx], label: e.target.value }
                                           updateField(index, { options: opts })
                                         }}
@@ -835,7 +838,7 @@ export function TemplateFormModal({
                                       <VariableSelect
                                         value={opt.variable}
                                         onChange={(v) => {
-                                          const opts = [...(field.options ?? [])]
+                                          const opts = [...(field.options ?? [])] as MultiCheckboxOptionDto[]
                                           opts[optIdx] = { ...opts[optIdx], variable: v }
                                           updateField(index, { options: opts })
                                         }}
@@ -852,7 +855,7 @@ export function TemplateFormModal({
                                       size="icon"
                                       className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 shrink-0"
                                       onClick={() => {
-                                        const opts = (field.options ?? []).filter((_, i) => i !== optIdx)
+                                        const opts = ((field.options ?? []) as MultiCheckboxOptionDto[]).filter((_, i) => i !== optIdx)
                                         updateField(index, { options: opts })
                                       }}
                                     >
