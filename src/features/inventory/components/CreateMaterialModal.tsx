@@ -62,9 +62,11 @@ export function CreateMaterialModal({
 
   if (!open) return null
 
+  const isFormValid = name.trim() !== '' && unit.trim() !== ''
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    if (!name.trim() || !unit.trim()) return
+    if (!isFormValid) return
 
     try {
       await createMaterial.mutateAsync({
@@ -273,7 +275,7 @@ export function CreateMaterialModal({
             <Button variant="outline" type="button" onClick={onClose}>
               {t('materials.cancel')}
             </Button>
-            <Button type="submit" disabled={createMaterial.isPending}>
+            <Button type="submit" disabled={createMaterial.isPending || !isFormValid}>
               {t('materials.confirm')}
             </Button>
           </div>

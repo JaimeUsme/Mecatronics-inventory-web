@@ -340,14 +340,18 @@ export function Sidebar({ onCollapseChange, mobileOpen = false, onCloseMobile }:
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   )}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon
-                      className={cn(
-                        'h-5 w-5 flex-shrink-0',
-                        parentIsSelected ? 'text-white' : 'text-gray-600 dark:text-gray-400'
-                      )}
-                    />
-                    <span className="font-medium">{item.label}</span>
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
+                      <Icon
+                        className={cn(
+                          'h-5 w-5',
+                          parentIsSelected ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                        )}
+                      />
+                    </span>
+                    <span className="min-w-0 flex-1 text-left font-medium">
+                      {item.label}
+                    </span>
                   </div>
                   <ChevronDown
                     className={cn(

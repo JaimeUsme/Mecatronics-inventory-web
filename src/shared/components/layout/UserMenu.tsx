@@ -8,6 +8,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/components/ui/popover'
+
+// 1. Importamos el hook que maneja el localStorage
+import { useAuth } from '@/app/providers/AuthProvider' 
 import { useAuthStore } from '@/features/auth/store'
 import { useProfile } from '@/features/auth/hooks'
 
@@ -16,21 +19,30 @@ export function UserMenu() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = useState(false)
-  const logout = useAuthStore((state) => state.logout)
   
-  // Obtener datos del usuario
+  // 2. Extraemos logout de nuestro AuthProvider
+  const { logout: logoutContext } = useAuth()
+  const logoutStore = useAuthStore((state) => state.logout)
+  
   const { data: profile } = useProfile()
   
-  // Usar datos del perfil
   const userName = profile?.name
   const userEmail = profile?.email
 
   const handleLogout = () => {
-    // Limpiar todo el cache de React Query
+    // A. Cerramos el popover para evitar errores visuales
+    setIsOpen(false)
+
+    // B. Limpiamos nuestro Provider (esto borra el JWT del localStorage)
+    logoutContext()
+
+    // C. Limpiamos Zustand (si aún manejas estado ahí)
+    logoutStore()
+
+    // D. Limpiar el cache de React Query (Seguridad: evita que el siguiente usuario vea datos previos)
     queryClient.clear()
-    // Hacer logout
-    logout()
-    // Navegar al login
+    
+    // E. Redirigimos al inicio
     navigate('/login')
   }
 
@@ -41,7 +53,6 @@ export function UserMenu() {
 
   const handleSettings = () => {
     setIsOpen(false)
-    // TODO: Navegar a página de configuración
     console.log('Ir a configuración')
   }
 
@@ -52,7 +63,7 @@ export function UserMenu() {
           <User className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64" align="end">
+      <PopoverContent className="w-64" align="end" sideOffset={8}>
         <div className="space-y-4">
           {/* Información del usuario */}
           <div className="space-y-1 pb-3 border-b border-gray-200 dark:border-gray-700">
@@ -90,7 +101,7 @@ export function UserMenu() {
             </button>
           </div>
 
-          {/* Separador */}
+          {/* Botón Logout */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-1">
             <button
               onClick={handleLogout}
@@ -105,4 +116,3 @@ export function UserMenu() {
     </Popover>
   )
 }
-

@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { Package, Eye, EyeOff } from 'lucide-react'
+import { useNavigate } from 'react-router-dom' // Para redirigir tras el login
+
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import {
@@ -13,13 +15,22 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card'
 import { LanguageSelector, ThemeToggle } from '@/shared/components/layout'
+
+// Importaciones de la lógica de negocio
 import { createLoginSchema, type LoginFormData } from '../validators'
 import { useInternalLogin } from '../hooks'
+import { useAuth } from '@/app/providers/AuthProvider' // <-- IMPORTANTE: Nuestro Hook
 
 export function LoginPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  
+  // Extraemos la función login del contexto global
+  const { login } = useAuth() 
+  
   const internalLoginMutation = useInternalLogin()
+
   const {
     register,
     handleSubmit,
@@ -34,7 +45,22 @@ export function LoginPage() {
       password: data.password,
     }
 
-    internalLoginMutation.mutate(payload)
+    internalLoginMutation.mutate(payload, {
+      onSuccess: (response: any) => { // Usamos 'any' aquí para que TypeScript deje de marcar error
+        /**
+         * Según tu error, 'response' ya es el objeto que contiene el token.
+         * Intenta con estas opciones hasta que veas cuál tiene el string:
+         */
+        const token = response?.accessToken || response?.token || response?.data?.accessToken;
+
+        if (token) {
+          login(token); 
+          navigate('/dashboard'); 
+        } else {
+          console.error("No se encontró el token en la respuesta:", response);
+        }
+      }
+    })
   }
 
   return (
@@ -49,7 +75,6 @@ export function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-4">
         <Card className="w-full max-w-md shadow-lg border-0">
           <CardHeader className="text-center space-y-6 pb-8">
-            {/* Icono */}
             <div className="flex justify-center">
               <div className="h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center border-2 border-white shadow-md">
                 <Package className="h-8 w-8 text-white" strokeWidth={1.5} />
@@ -106,7 +131,6 @@ export function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -122,7 +146,7 @@ export function LoginPage() {
                 )}
               </div>
 
-              {/* Mensaje de error */}
+              {/* Mensaje de error de la API */}
               {internalLoginMutation.isError && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                   <p className="text-sm text-red-600 dark:text-red-400">
@@ -150,4 +174,3 @@ export function LoginPage() {
     </div>
   )
 }
-
